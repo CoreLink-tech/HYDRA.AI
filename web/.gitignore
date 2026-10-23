@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+next-env.d.ts
+.env
+.env.local
+.env*.local
+*.log
+.DS_Store
+coverage
+.turso
+local.db
+local.db-*
