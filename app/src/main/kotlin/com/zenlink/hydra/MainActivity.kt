@@ -9,22 +9,42 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.zenlink.hydra.core.database.repo.SettingsRepository
 import com.zenlink.hydra.core.designsystem.HydraTheme
+import com.zenlink.hydra.core.device.DeviceChecker
+import com.zenlink.hydra.core.model.ModelCatalog
+import com.zenlink.hydra.core.model.Entitlement
+import com.zenlink.hydra.core.model.Plan
 import com.zenlink.hydra.feature.chat.ChatScreen
+import com.zenlink.hydra.feature.chat.ChatViewModel
+import com.zenlink.hydra.feature.models.ModelsScreen
+import com.zenlink.hydra.feature.models.ModelsViewModel
+import com.zenlink.hydra.feature.onboarding.OnboardingScreen
+import com.zenlink.hydra.feature.onboarding.OnboardingViewModel
+import com.zenlink.hydra.feature.settings.SettingsPlanner
+import com.zenlink.hydra.feature.settings.SettingsScreen
+import com.zenlink.hydra.feature.settings.SettingsViewModel
+import com.zenlink.hydra.core.model.InstalledModel
+import com.zenlink.hydra.core.model.ModelState
+import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,15 +59,29 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/** Builds a view-model from the app-owned dependencies. Keeps MainActivity free of wiring details. */
+private fun <T : ViewModel> factory(make: () -> T) = object : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <VM : ViewModel> create(modelClass: Class<VM>, extras: CreationExtras): VM = make() as VM
+}
+
 @Composable
 private fun HydraRoot(online: Boolean) {
+    val app = LocalContext.current.applicationContext as HydraApp
     val nav = rememberNavController()
-    // Onboarding completion is persisted by feature:onboarding; the default here is a first run.
-    var onboardingComplete by remember { mutableStateOf(false) }
+    val settingsRepo: SettingsRepository = app.settings
+    // Onboarding completion is read reactively from the encrypted settings table.
+    val onboardingComplete by produceState(initialValue = false) {
+        settingsRepo.observe().collect { value = it.onboardingComplete }
+    }
     val start = AppRouter.startRoute(onboardingComplete).path
     val backStack by nav.currentBackStackEntryAsState()
     val current = backStack?.destination?.route ?: start
-    val hasModel = false // wired to core:database ModelRepository once the Application owns it
+    // Whether a model is installed decides the offline banner.
+    val installed by produceState(initialValue = emptyList<InstalledModel>()) {
+        app.models.observeAll().collect { value = it }
+    }
+    val hasModel = installed.any { it.state == ModelState.INSTALLED }
 
     Scaffold(
         bottomBar = {
@@ -69,26 +103,59 @@ private fun HydraRoot(online: Boolean) {
             AppRouter.offlineIndicator(online, hasModel)?.let { Text(it) }
             NavHost(navController = nav, startDestination = start) {
                 composable(Route.Onboarding.path) {
-                    OnboardingScreen(onFinished = { onboardingComplete = true; nav.navigate(Route.Chat.path) })
+                    val vm: OnboardingViewModel = viewModel(factory = factory {
+                        OnboardingViewModel(
+                            settings = settingsRepo,
+                            downloads = app.downloads,
+                            deviceProfile = { DeviceChecker(app).snapshot() },
+                            wifiOnly = { settingsRepo.observe().first().wifiOnlyDownloads },
+                            onFinished = { nav.navigate(Route.Chat.path) { popUpTo(0) } },
+                        )
+                    })
+                    OnboardingScreen(viewModel = vm)
                 }
-                composable(Route.Chat.path) { ChatScreen() }
-                composable(Route.Models.path) { ModelsScreen() }
-                composable(Route.Settings.path) { SettingsScreen() }
+                composable(Route.Chat.path) {
+                    val vm: ChatViewModel = viewModel(factory = factory {
+                        ChatViewModel(app.chats, app.models, settingsRepo, app.engine, initialChatId = null)
+                    })
+                    ChatScreen(
+                        viewModel = vm,
+                        onBack = { nav.popBackStack() },
+                        onOpenModels = { nav.navigate(Route.Models.path) },
+                    )
+                }
+                composable(Route.Models.path) {
+                    val vm: ModelsViewModel = viewModel(factory = factory {
+                        ModelsViewModel(
+                            catalogue = ModelCatalog.all,
+                            models = app.models,
+                            settings = settingsRepo,
+                            downloads = app.downloads,
+                            freeStorageBytes = { app.filesDir.usableSpace },
+                            recommendedTier = null,
+                        )
+                    })
+                    ModelsScreen(viewModel = vm)
+                }
+                composable(Route.Settings.path) {
+                    val vm: SettingsViewModel = viewModel(factory = factory {
+                        SettingsViewModel(
+                            settings = settingsRepo,
+                            downloads = app.downloads,
+                            wipeLocalData = { app.database.clearAllTables() },
+                            observed = settingsRepo.observe(),
+                        )
+                    })
+                    SettingsScreen(
+                        viewModel = vm,
+                        subscription = SettingsPlanner.subscriptionStatus(
+                            entitlement = Entitlement(plan = Plan.FREE, expiresAtMs = null),
+                            nowMs = System.currentTimeMillis(),
+                        ),
+                        shareCapacity = "",
+                    )
+                }
             }
         }
     }
 }
-
-/** Placeholder until the models screen Compose UI exists. The planner in feature:models is done. */
-@Composable
-private fun ModelsScreen() = Text("Models: screen not built yet.")
-
-/** Placeholder until the onboarding Compose UI exists. The step machine in feature:onboarding is done. */
-@Composable
-private fun OnboardingScreen(onFinished: () -> Unit) {
-    androidx.compose.material3.TextButton(onClick = onFinished) { Text("Continue") }
-}
-
-/** Placeholder until the settings Compose UI exists. The planner in feature:settings is done. */
-@Composable
-private fun SettingsScreen() = Text("Settings: screen not built yet.")
