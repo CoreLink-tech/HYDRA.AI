@@ -13,7 +13,8 @@ class StoragePolicyTest {
 
     @Test
     fun tightSpaceWarns() {
-        assertEquals(StoragePolicy.Verdict.WARN_LOW_SPACE, StoragePolicy.check(4 * gib, 1 * gib))
+        // 4 GiB free, 2 GiB model: 2 GiB left, below the 3 GiB warning line but above the 1 GiB margin.
+        assertEquals(StoragePolicy.Verdict.WARN_LOW_SPACE, StoragePolicy.check(4 * gib, 2 * gib))
     }
 
     @Test
