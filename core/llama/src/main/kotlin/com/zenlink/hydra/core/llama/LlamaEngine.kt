@@ -66,18 +66,13 @@ class LlamaEngine(
     /** Formats chat history with ChatML, the template used by the curated Qwen models. */
     fun buildPrompt(history: List<ChatMessage>, systemPrompt: String = DEFAULT_SYSTEM_PROMPT): String =
         buildString {
-            append("<|im_start|>system
-").append(systemPrompt).append("<|im_end|>
-")
+            append("<|im_start|>system\n").append(systemPrompt).append("<|im_end|>\n")
             history.forEach { m ->
                 val role = if (m.role == MessageRole.USER) "user" else "assistant"
-                append("<|im_start|>").append(role).append("
-")
-                append(m.content).append("<|im_end|>
-")
+                append("<|im_start|>").append(role).append("\n")
+                append(m.content).append("<|im_end|>\n")
             }
-            append("<|im_start|>assistant
-")
+            append("<|im_start|>assistant\n")
         }
 
     /**
