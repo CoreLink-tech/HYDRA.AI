@@ -16,7 +16,6 @@ import com.zenlink.hydra.core.database.entities.MessageEntity
 import com.zenlink.hydra.core.database.entities.ModelEntity
 import com.zenlink.hydra.core.database.entities.SettingEntity
 import com.zenlink.hydra.core.database.entities.ShareEntity
-import net.zetetic.database.sqlcipher.SQLiteDatabase
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 @Database(
@@ -45,7 +44,6 @@ abstract class HydraDatabase : RoomDatabase() {
          * derived from the Keystore-wrapped passphrase in [KeyProvider].
          */
         fun open(context: Context): HydraDatabase {
-            SQLiteDatabase.loadLibs(context)
             val passphrase = KeyProvider(context).passphrase()
             return Room.databaseBuilder(context.applicationContext, HydraDatabase::class.java, DB_NAME)
                 .openHelperFactory(SupportOpenHelperFactory(passphrase))

@@ -76,7 +76,7 @@ class ChatRepository(
     suspend fun deleteEverything() = chats.deleteAll()
 
     suspend fun search(query: String): List<ChatSummary> {
-        val safe = query.trim().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        val safe = escapeLike(query.trim())
         if (safe.isEmpty()) return emptyList()
         return chats.searchChats(safe).map { it.toSummary() }
     }
@@ -98,3 +98,7 @@ class ChatRepository(
         createdAtMs = createdAtMs,
     )
 }
+
+/** Escapes LIKE wildcards so user text matches literally. Pair with ESCAPE '\\' in SQL. */
+fun escapeLike(raw: String): String =
+    raw.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
