@@ -1,0 +1,80 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+}
+
+android {
+    namespace = "com.zenlink.hydra"
+    compileSdk = 35
+    ndkVersion = "27.0.12077973"
+
+    defaultConfig {
+        applicationId = "com.zenlink.hydra"
+        minSdk = 26
+        targetSdk = 35
+        versionCode = 1
+        versionName = "0.1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Online endpoints. Empty string = offline-only build (in-memory relay stub).
+        buildConfigField("String", "RELAY_BASE_URL", "\"\"")
+        // Mock billing is the default until Play Console products exist.
+        buildConfigField("boolean", "USE_MOCK_BILLING", "true")
+        buildConfigField("String", "PRIVACY_POLICY_URL", "\"https://zenlink.tech/hydra/privacy\"")
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // TODO(release): wire the Play upload keystore via keystore.properties (never committed).
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    packaging {
+        resources.excludes += setOf("/META-INF/{AL2.0,LGPL2.1}")
+    }
+}
+
+dependencies {
+    implementation(project(":core:model"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":core:device"))
+    implementation(project(":core:database"))
+    implementation(project(":core:llama"))
+    implementation(project(":core:download"))
+    implementation(project(":core:billing"))
+    implementation(project(":core:sharing"))
+    implementation(project(":core:monitoring"))
+    implementation(project(":feature:onboarding"))
+    implementation(project(":feature:chat"))
+    implementation(project(":feature:models"))
+    implementation(project(":feature:settings"))
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.kotlinx.coroutines.android)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+}

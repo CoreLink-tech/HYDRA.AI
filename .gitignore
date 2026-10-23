@@ -1,0 +1,23 @@
+# Gradle / Android
+.gradle/
+build/
+**/build/
+local.properties
+*.iml
+.idea/
+.DS_Store
+captures/
+.cxx/
+.externalNativeBuild/
+
+# Secrets and signing
+*.jks
+*.keystore
+keystore.properties
+google-services.json
+secrets.properties
+
+# Vendored llama.cpp sources are fetched by scripts/vendor-llama.sh, never committed
+core/llama/third_party/llama.cpp/
+*.gguf
+*.part
