@@ -24,8 +24,8 @@ android {
 
 dependencies {
     implementation(project(":core:model"))
-    implementation(project(":core:database"))
-    implementation(libs.billing.ktx)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.billing.ktx)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
