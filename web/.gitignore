@@ -11,3 +11,4 @@ coverage
 .turso
 local.db
 local.db-*
+*.tsbuildinfo
