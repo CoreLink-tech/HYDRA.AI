@@ -20,4 +20,13 @@ class HydraApp : Application() {
     val settings: SettingsRepository by lazy { SettingsRepository(database.settingDao()) }
     val engine: LlamaEngine by lazy { LlamaEngine() }
     val downloads: ModelDownloads by lazy { WorkModelDownloads(this) }
+
+    override fun onCreate() {
+        super.onCreate()
+        // Installed first so that anything that fails below is recorded and shown on next launch.
+        CrashLog.install(this)
+        // sqlcipher-android (net.zetetic) does not load its native library by itself. It must be
+        // loaded before the first database is opened, or the first query throws UnsatisfiedLinkError.
+        System.loadLibrary("sqlcipher")
+    }
 }

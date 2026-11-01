@@ -16,7 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,7 +52,19 @@ import kotlinx.coroutines.flow.first
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { HydraTheme { HydraRoot(isOnline(this)) } }
+        setContent {
+            // If the previous run crashed, show the report first. Dismissing it deletes the file.
+            var crashReport by remember { mutableStateOf(CrashLog.read(this)) }
+            val report = crashReport
+            if (report != null) {
+                CrashReportScreen(report = report) {
+                    CrashLog.clear(this)
+                    crashReport = null
+                }
+            } else {
+                HydraTheme { HydraRoot(isOnline(this)) }
+            }
+        }
     }
 
     private fun isOnline(context: Context): Boolean {
