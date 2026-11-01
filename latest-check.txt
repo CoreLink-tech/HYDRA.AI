@@ -1,0 +1,65 @@
+job=check status=success run=2 sha=b7d8adef7c2a05235f578a34c38f865e3f91d350
+---- errors and failures ----
+BUILD SUCCESSFUL in 2m 28s
+268 actionable tasks: 186 executed, 82 from cache
+---- last 60 lines ----
+> Task :core:database:compileDebugKotlin
+> Task :core:sharing:testDebugUnitTest
+> Task :core:database:compileDebugJavaWithJavac
+> Task :core:database:bundleLibCompileToJarDebug
+> Task :core:database:bundleLibRuntimeToJarDebug
+> Task :core:database:processDebugJavaRes
+> Task :feature:settings:compileDebugKotlin
+> Task :feature:settings:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:settings:bundleLibCompileToJarDebug
+> Task :feature:settings:bundleLibRuntimeToJarDebug
+> Task :feature:settings:processDebugJavaRes
+> Task :feature:onboarding:compileDebugKotlin
+> Task :feature:onboarding:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:onboarding:bundleLibCompileToJarDebug
+> Task :feature:onboarding:bundleLibRuntimeToJarDebug
+> Task :feature:onboarding:processDebugJavaRes
+> Task :feature:models:compileDebugKotlin
+> Task :feature:models:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:models:bundleLibCompileToJarDebug
+> Task :feature:models:bundleLibRuntimeToJarDebug
+> Task :feature:models:processDebugJavaRes
+> Task :core:database:kspDebugUnitTestKotlin
+> Task :core:database:compileDebugUnitTestKotlin
+> Task :core:database:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:database:processDebugUnitTestJavaRes
+> Task :feature:onboarding:compileDebugUnitTestKotlin
+> Task :feature:onboarding:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:onboarding:processDebugUnitTestJavaRes
+> Task :feature:chat:compileDebugKotlin
+> Task :feature:chat:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:chat:bundleLibCompileToJarDebug
+> Task :feature:models:compileDebugUnitTestKotlin
+> Task :feature:chat:bundleLibRuntimeToJarDebug
+> Task :feature:chat:processDebugJavaRes
+> Task :core:database:testDebugUnitTest
+> Task :feature:models:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:models:processDebugUnitTestJavaRes
+> Task :feature:chat:compileDebugUnitTestKotlin
+> Task :feature:chat:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:chat:processDebugUnitTestJavaRes
+> Task :app:compileDebugKotlin
+> Task :feature:models:testDebugUnitTest
+> Task :feature:onboarding:testDebugUnitTest
+> Task :feature:chat:testDebugUnitTest
+> Task :feature:settings:compileDebugUnitTestKotlin
+> Task :feature:settings:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:settings:processDebugUnitTestJavaRes
+> Task :feature:settings:testDebugUnitTest
+> Task :app:compileDebugJavaWithJavac
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:processDebugJavaRes
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:testDebugUnitTest
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1793568813123.json
+
+BUILD SUCCESSFUL in 2m 28s
+268 actionable tasks: 186 executed, 82 from cache
