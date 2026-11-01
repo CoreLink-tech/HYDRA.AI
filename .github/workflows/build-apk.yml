@@ -2,14 +2,56 @@ name: Build debug APK
 
 on:
   push:
-    branches: [fix/sqlcipher-load]
+    branches: [fix/sqlcipher-load, redesign/ui]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  # Fast gate: compiles every Kotlin module and runs the JVM unit tests (no native build).
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Android SDK pieces
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-35" "build-tools;35.0.0" \
+            "ndk;27.0.12077973" "cmake;3.22.1"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Compile Kotlin and run unit tests
+        shell: bash
+        run: ./gradlew compileDebugKotlin testDebugUnitTest --continue --console=plain --stacktrace 2>&1 | tee gradle-check.log
+
+      - name: Publish check log to ci-logs branch
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo "job=check status=$JOB_STATUS run=${{ github.run_number }} sha=${{ github.sha }}"
+            echo "---- errors and failures ----"
+            grep -E "^e: |^w: .*(deprecat|unused)|error:|FAILED|What went wrong|Execution failed|Unresolved|BUILD " -A4 gradle-check.log | head -300 || true
+            echo "---- last 60 lines ----"
+            tail -60 gradle-check.log
+          } > ci-check.txt
+          bash scripts/publish-ci-log.sh ci-check.txt latest-check.txt
+
+  apk:
+    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -38,7 +80,24 @@ jobs:
         run: rm -rf core/llama/src/main/jniLibs
 
       - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+        shell: bash
+        run: ./gradlew :app:assembleDebug --console=plain --stacktrace 2>&1 | tee gradle-apk.log
+
+      - name: Publish APK log to ci-logs branch
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo "job=apk status=$JOB_STATUS run=${{ github.run_number }} sha=${{ github.sha }}"
+            echo "---- errors and failures ----"
+            grep -E "^e: |error:|FAILED|What went wrong|Execution failed|BUILD " -A4 gradle-apk.log | head -200 || true
+            echo "---- last 40 lines ----"
+            tail -40 gradle-apk.log
+          } > ci-apk.txt
+          bash scripts/publish-ci-log.sh ci-apk.txt latest-apk.txt
 
       - uses: actions/upload-artifact@v4
         with:
