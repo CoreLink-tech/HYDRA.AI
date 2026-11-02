@@ -1,32 +1,32 @@
-job=apk status=success run=2 sha=b7d8adef7c2a05235f578a34c38f865e3f91d350
+job=apk status=success run=4 sha=1569d52168235e97069588839c7ef21be7fb4eac
 ---- errors and failures ----
-BUILD SUCCESSFUL in 6m 30s
-293 actionable tasks: 226 executed, 67 from cache
+BUILD SUCCESSFUL in 7m 34s
+293 actionable tasks: 225 executed, 68 from cache
 ---- last 40 lines ----
-C/C++: [175/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen2moe.cpp.o
+C/C++: [175/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen2vl.cpp.o
 C/C++: [176/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen35.cpp.o
-C/C++: [177/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen35moe.cpp.o
+C/C++: [177/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen3next.cpp.o
 C/C++: [178/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen3moe.cpp.o
-C/C++: [179/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen3vl.cpp.o
-C/C++: [180/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen3vlmoe.cpp.o
-C/C++: [181/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen3next.cpp.o
-C/C++: [182/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv6-base.cpp.o
-C/C++: [183/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/refact.cpp.o
-C/C++: [184/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv6.cpp.o
-C/C++: [185/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rnd1.cpp.o
-C/C++: [186/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv6qwen2.cpp.o
-C/C++: [187/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv7-base.cpp.o
-C/C++: [188/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/seed-oss.cpp.o
+C/C++: [179/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen35moe.cpp.o
+C/C++: [180/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/refact.cpp.o
+C/C++: [181/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen3vl.cpp.o
+C/C++: [182/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/qwen3vlmoe.cpp.o
+C/C++: [183/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rnd1.cpp.o
+C/C++: [184/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv6-base.cpp.o
+C/C++: [185/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv6.cpp.o
+C/C++: [186/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/seed-oss.cpp.o
+C/C++: [187/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv6qwen2.cpp.o
+C/C++: [188/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv7-base.cpp.o
 C/C++: [189/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/rwkv7.cpp.o
 C/C++: [190/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/smallthinker.cpp.o
 C/C++: [191/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/smollm3.cpp.o
 C/C++: [192/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/stablelm.cpp.o
-C/C++: [193/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/starcoder.cpp.o
-C/C++: [194/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/starcoder2.cpp.o
+C/C++: [193/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/starcoder2.cpp.o
+C/C++: [194/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/starcoder.cpp.o
 C/C++: [195/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/step35.cpp.o
-C/C++: [196/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/xverse.cpp.o
+C/C++: [196/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/t5encoder.cpp.o
 C/C++: [197/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/t5.cpp.o
-C/C++: [198/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/t5encoder.cpp.o
+C/C++: [198/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/xverse.cpp.o
 C/C++: [199/201] Building CXX object llama.cpp/src/CMakeFiles/llama.dir/models/wavtokenizer-dec.cpp.o
 C/C++: [200/201] Linking CXX static library llama.cpp/src/libllama.a
 C/C++: [201/201] Linking CXX shared library /home/runner/work/HYDRA.AI/HYDRA.AI/core/llama/build/intermediates/cxx/Debug/2dvm4k3x/obj/x86_64/libhydra_llama.so
@@ -39,7 +39,7 @@ C/C++: [201/201] Linking CXX shared library /home/runner/work/HYDRA.AI/HYDRA.AI/
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_4-1793568998656.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_4-1793658367960.json
 
-BUILD SUCCESSFUL in 6m 30s
-293 actionable tasks: 226 executed, 67 from cache
+BUILD SUCCESSFUL in 7m 34s
+293 actionable tasks: 225 executed, 68 from cache
