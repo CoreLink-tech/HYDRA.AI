@@ -1,17 +1,180 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink: #0b0d12;
-  --color-brand: #5b5bf6;
-  --color-brand-soft: #eef0ff;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+/*
+ * HYDRA.AI design tokens. These mirror the Android app (core/designsystem/Color.kt) so the site and
+ * the app read as one product. Light is the default; dark follows the visitor's system setting.
+ * `.theme-dark` forces the dark palette, used for the phone mockups and the privacy band.
+ */
+:root {
+  --canvas: #fbfaf6;
+  --surface: #f3f5f0;
+  --elevated: #ffffff;
+  --card: #ffffff;
+  --line: #dde3db;
+  --line-strong: #c3ccc2;
+  --accent: #1f7a4f;
+  --accent-strong: #17613f;
+  --on-accent: #ffffff;
+  --accent-soft: #e2f0e7;
+  --fg: #111a15;
+  --fg-2: #45524a;
+  --fg-3: #66726a;
+  --warn: #8f5f00;
+  --warn-soft: #fbf0d6;
+  --danger: #b3261e;
+  --danger-soft: #fbe3e1;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0b0e0d;
+    --surface: #111614;
+    --elevated: #171e1a;
+    --card: #1b231f;
+    --line: #26302a;
+    --line-strong: #34413a;
+    --accent: #66c995;
+    --accent-strong: #42a982;
+    --on-accent: #06150d;
+    --accent-soft: #1c2f25;
+    --fg: #f3f6f3;
+    --fg-2: #a0aba4;
+    --fg-3: #78857d;
+    --warn: #e5b567;
+    --warn-soft: #2e2615;
+    --danger: #f2877d;
+    --danger-soft: #31191a;
+    color-scheme: dark;
+  }
+}
+
+.theme-dark {
+  --canvas: #0b0e0d;
+  --surface: #111614;
+  --elevated: #171e1a;
+  --card: #1b231f;
+  --line: #26302a;
+  --line-strong: #34413a;
+  --accent: #66c995;
+  --accent-strong: #42a982;
+  --on-accent: #06150d;
+  --accent-soft: #1c2f25;
+  --fg: #f3f6f3;
+  --fg-2: #a0aba4;
+  --fg-3: #78857d;
+  --warn: #e5b567;
+  --warn-soft: #2e2615;
+  --danger: #f2877d;
+  --danger-soft: #31191a;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --radius-btn: 12px;
+  --radius-card: 16px;
+  --radius-panel: 24px;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.12);
+  --shadow-pop: 0 24px 60px -20px rgb(0 0 0 / 0.35);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  background: var(--canvas);
 }
 
 body {
-  @apply bg-white text-zinc-900 antialiased;
+  background: var(--canvas);
+  color: var(--fg);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Scroll reveal: elements start slightly low and transparent, then settle. Transform and opacity only. */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 600ms var(--ease-out),
+    transform 600ms var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal[data-in="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hero entrance plays once on load. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 700ms var(--ease-out) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.dot-pulse {
+  animation: pulse-soft 1.2s ease-in-out infinite;
+}
+
+.skeleton {
+  background: var(--elevated);
+  border-radius: 8px;
+  animation: pulse-soft 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .rise, .dot-pulse, .skeleton { animation: none; }
+  .reveal, .rise { opacity: 1; }
+  * { transition-duration: 0.01ms !important; }
 }

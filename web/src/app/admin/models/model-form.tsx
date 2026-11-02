@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import type { ModelMetadata } from "@/db/schema";
 import { saveModel } from "./actions";
 
-const field = "mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm";
+const field = "mt-1 w-full rounded-btn border border-line-strong bg-card px-3 py-2 text-sm text-fg";
 
 export function ModelForm({ model }: { model: ModelMetadata | null }) {
   const [message, setMessage] = useState<string | null>(null);
@@ -12,7 +12,7 @@ export function ModelForm({ model }: { model: ModelMetadata | null }) {
 
   return (
     <form
-      className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-zinc-200 bg-white p-6 md:grid-cols-2"
+      className="mt-4 grid grid-cols-1 gap-4 rounded-card border border-line bg-card p-6 md:grid-cols-2"
       action={(fd) =>
         start(async () => {
           const res = await saveModel(fd);
@@ -56,10 +56,10 @@ export function ModelForm({ model }: { model: ModelMetadata | null }) {
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="commercialUseReviewed" defaultChecked={model?.commercialUseReviewed ?? false} /> Commercial use and redistribution reviewed</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="requiresPro" defaultChecked={model?.requiresPro ?? false} /> Pro only</label>
       <div className="flex items-center gap-4 md:col-span-2">
-        <button disabled={pending} className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+        <button disabled={pending} className="min-h-11 rounded-btn bg-accent px-5 py-2 text-sm font-medium text-on-accent hover:bg-accent-strong disabled:opacity-50">
           {pending ? "Saving..." : "Save model"}
         </button>
-        {message ? <span className="text-sm text-zinc-600">{message}</span> : null}
+        {message ? <span className="text-sm text-fg-2">{message}</span> : null}
       </div>
     </form>
   );

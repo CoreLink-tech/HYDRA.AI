@@ -21,12 +21,12 @@ export default async function ModelsPage({ searchParams }: { searchParams: Promi
     <div className="space-y-8">
       <section>
         <h1 className="text-2xl font-semibold">Model catalogue</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-fg-3">
           Only published rows appear in GET /api/v1/models. Drafts stay private until licence review is ticked.
         </p>
-        <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="mt-4 overflow-x-auto rounded-card border border-line bg-card">
           <table className="w-full text-left text-sm">
-            <thead className="bg-zinc-50 text-zinc-500">
+            <thead className="bg-surface text-fg-3">
               <tr>
                 <th className="px-4 py-2">Model</th>
                 <th className="px-4 py-2">Tier</th>
@@ -38,34 +38,34 @@ export default async function ModelsPage({ searchParams }: { searchParams: Promi
             </thead>
             <tbody>
               {rows.map((m) => (
-                <tr key={m.id} className="border-t border-zinc-100">
+                <tr key={m.id} className="border-t border-line">
                   <td className="px-4 py-2">
                     <div className="font-medium">{m.name}</div>
-                    <div className="text-xs text-zinc-500">{m.id}</div>
+                    <div className="text-xs text-fg-3">{m.id}</div>
                   </td>
                   <td className="px-4 py-2 capitalize">{m.tier}{m.requiresPro ? " (Pro)" : ""}</td>
                   <td className="px-4 py-2">{m.version}</td>
                   <td className="px-4 py-2">{mb(m.downloadSizeBytes)}</td>
                   <td className="px-4 py-2">
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs">{m.status}</span>
+                    <span className="rounded-full bg-surface px-2 py-0.5 text-xs">{m.status}</span>
                   </td>
                   <td className="space-x-3 px-4 py-2">
-                    <a className="text-indigo-600 hover:underline" href={`/admin/models?edit=${encodeURIComponent(m.id)}`}>Edit</a>
+                    <a className="text-accent hover:underline" href={`/admin/models?edit=${encodeURIComponent(m.id)}`}>Edit</a>
                     {m.status !== "published" ? (
                       <form action={async () => { "use server"; await setModelStatus(m.id, "published"); }} className="inline">
-                        <button className="text-emerald-700 hover:underline">Publish</button>
+                        <button className="text-accent hover:underline">Publish</button>
                       </form>
                     ) : null}
                     {m.status === "published" ? (
                       <form action={async () => { "use server"; await setModelStatus(m.id, "revoked"); }} className="inline">
-                        <button className="text-red-600 hover:underline">Revoke</button>
+                        <button className="text-danger hover:underline">Revoke</button>
                       </form>
                     ) : null}
                   </td>
                 </tr>
               ))}
               {rows.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-6 text-center text-zinc-500">No models yet. Run db:seed or add one below.</td></tr>
+                <tr><td colSpan={6} className="px-4 py-6 text-center text-fg-3">No models yet. Run db:seed or add one below.</td></tr>
               ) : null}
             </tbody>
           </table>

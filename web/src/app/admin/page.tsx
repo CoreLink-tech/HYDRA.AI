@@ -41,8 +41,8 @@ export default async function AdminOverview() {
       <h1 className="text-2xl font-semibold">Overview</h1>
       <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-5">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-xl border border-zinc-200 bg-white p-5">
-            <div className="text-sm text-zinc-500">{c.label}</div>
+          <div key={c.label} className="rounded-card border border-line bg-card p-5">
+            <div className="text-sm text-fg-3">{c.label}</div>
             <div className="mt-2 text-3xl font-semibold">{c.value}</div>
           </div>
         ))}
