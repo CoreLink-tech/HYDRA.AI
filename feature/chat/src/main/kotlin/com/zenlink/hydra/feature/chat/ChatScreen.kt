@@ -193,19 +193,14 @@ fun ChatScreen(
                 }
             }
 
-            AnimatedVisibility(
+            JumpToLatest(
                 visible = !follow && state.messages.isNotEmpty(),
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
-                enter = fadeIn(tween(HydraMotion.Short)) + scaleIn(tween(HydraMotion.Short), initialScale = 0.8f),
-                exit = fadeOut(tween(HydraMotion.Short)) + scaleOut(tween(HydraMotion.Short), targetScale = 0.8f),
-            ) {
-                JumpToLatest(
-                    onClick = {
-                        follow = true
-                        scope.launch { listState.scrollToItem(state.messages.size) }
-                    },
-                )
-            }
+                onClick = {
+                    follow = true
+                    scope.launch { listState.scrollToItem(state.messages.size) }
+                },
+            )
         }
 
         Composer(
@@ -393,18 +388,26 @@ private fun ThinkingDots() {
     }
 }
 
+/** Declared as its own function so the animation resolves to the plain AnimatedVisibility, not a Column-scoped one. */
 @Composable
-private fun JumpToLatest(onClick: () -> Unit) {
+private fun JumpToLatest(visible: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val c = MaterialTheme.hydra
-    Box(
-        Modifier
-            .size(40.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(c.surfaceElevated)
-            .border(1.dp, c.borderStrong, RoundedCornerShape(12.dp))
-            .clickable(role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) { Icon(HydraIcons.ArrowDown, contentDescription = "Jump to latest message", tint = c.textPrimary, modifier = Modifier.size(22.dp)) }
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = fadeIn(tween(HydraMotion.Short)) + scaleIn(tween(HydraMotion.Short), initialScale = 0.8f),
+        exit = fadeOut(tween(HydraMotion.Short)) + scaleOut(tween(HydraMotion.Short), targetScale = 0.8f),
+    ) {
+        Box(
+            Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(c.surfaceElevated)
+                .border(1.dp, c.borderStrong, RoundedCornerShape(12.dp))
+                .clickable(role = Role.Button, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) { Icon(HydraIcons.ArrowDown, contentDescription = "Jump to latest message", tint = c.textPrimary, modifier = Modifier.size(22.dp)) }
+    }
 }
 
 // ---------------------------------------------------------------------------------------------
