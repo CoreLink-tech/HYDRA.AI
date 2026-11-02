@@ -13,4 +13,6 @@ data class AppSettings(
     val activeModelId: String? = null,
     val performanceMode: PerformanceMode = PerformanceMode.STANDARD,
     val onboardingComplete: Boolean = false,
+    /** "system", "light" or "dark". Stored as text so core:model needs no UI types. */
+    val themeMode: String = "system",
 )

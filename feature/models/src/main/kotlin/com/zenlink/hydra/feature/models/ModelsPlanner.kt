@@ -19,6 +19,8 @@ data class ModelRow(
     val canDownload: Boolean,
     val canDelete: Boolean,
     val canSwitch: Boolean,
+    /** Whether this phone can run the model (null when the device check has not been run). */
+    val fitsDevice: Boolean? = null,
 )
 
 object ModelsPlanner {
@@ -29,6 +31,7 @@ object ModelsPlanner {
         activeModelId: String?,
         freeStorageBytes: Long,
         recommendedTier: ModelTier?,
+        fittingTiers: Set<ModelTier>? = null,
     ): List<ModelRow> = catalogue.map { d ->
         val rec = records[d.id]
         val state = rec?.state ?: ModelState.NOT_DOWNLOADED
@@ -52,6 +55,7 @@ object ModelsPlanner {
             canDownload = state == ModelState.NOT_DOWNLOADED || state == ModelState.FAILED || state == ModelState.PAUSED,
             canDelete = installed && d.id != activeModelId,
             canSwitch = installed && d.id != activeModelId,
+            fitsDevice = fittingTiers?.contains(d.tier),
         )
     }
 
@@ -63,3 +67,10 @@ object ModelsPlanner {
     fun canStart(storage: StoragePolicy.Verdict): Boolean =
         storage != StoragePolicy.Verdict.BLOCKED_INSUFFICIENT
 }
+
+/**
+ * The quantization label shown on model cards, read from the real file name
+ * (for example "qwen2.5-0.5b-instruct-q4_k_m.gguf" gives "Q4_K_M"). Null when the name has none.
+ */
+fun quantizationOf(fileName: String): String? =
+    Regex("[Qq]\\d(?:_[A-Za-z0-9]+)+").find(fileName)?.value?.uppercase()

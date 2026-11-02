@@ -29,6 +29,7 @@ class ModelsViewModel(
     private val downloads: ModelDownloads,
     private val freeStorageBytes: () -> Long,
     private val recommendedTier: ModelTier?,
+    private val fittingTiers: Set<ModelTier>? = null,
 ) : ViewModel() {
 
     private val progress = MutableStateFlow<Map<String, Float>>(emptyMap())
@@ -62,6 +63,7 @@ class ModelsViewModel(
                     activeModelId = prefs.activeModelId,
                     freeStorageBytes = freeStorageBytes(),
                     recommendedTier = recommendedTier,
+                    fittingTiers = fittingTiers,
                 ).map { row ->
                     row.copy(progress = prog[row.descriptor.id] ?: row.progress)
                 }

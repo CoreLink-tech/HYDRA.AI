@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Hydra" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">#FF101014</item>
-        <item name="android:statusBarColor">#FF101014</item>
-        <item name="android:navigationBarColor">#FF101014</item>
+    <!-- Shown while the app is running. Compose paints everything; this only covers the first frame. -->
+    <style name="Theme.Hydra" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/hydra_window_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- Launch theme. The splash screen API plays the animated HYDRA mark, then switches to Theme.Hydra. -->
+    <style name="Theme.Hydra.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/hydra_window_bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_mark</item>
+        <item name="windowSplashScreenAnimationDuration">900</item>
+        <item name="postSplashScreenTheme">@style/Theme.Hydra</item>
     </style>
 </resources>

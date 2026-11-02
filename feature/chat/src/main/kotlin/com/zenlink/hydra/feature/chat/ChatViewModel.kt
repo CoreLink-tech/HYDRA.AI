@@ -9,6 +9,7 @@ import com.zenlink.hydra.core.llama.LlamaEngine
 import com.zenlink.hydra.core.llama.LoadConfig
 import com.zenlink.hydra.core.llama.SampleConfig
 import com.zenlink.hydra.core.model.ChatMessage
+import com.zenlink.hydra.core.model.ChatSummary
 import com.zenlink.hydra.core.model.MessageRole
 import com.zenlink.hydra.core.model.MessageStatus
 import com.zenlink.hydra.core.model.ModelCatalog
@@ -19,6 +20,8 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,14 +31,21 @@ data class ChatUiState(
     val chatId: Long? = null,
     val messages: List<ChatMessage> = emptyList(),
     val generating: Boolean = false,
+    /** Display name of the model chosen in Settings or Models, even before it has been loaded. */
     val modelName: String? = null,
+    /** True when the chosen model's file is installed and can be loaded. */
+    val modelReady: Boolean = false,
     /** Shown above the input when a reply cannot be made (no model, load failure, generation error). */
     val notice: String? = null,
+    /** Past conversations, newest first. Filtered by [historyQuery] when it is not blank. */
+    val history: List<ChatSummary> = emptyList(),
+    val historyQuery: String = "",
 )
 
 /**
- * Drives one chat. History comes from core:database; the reply being streamed is shown live from
- * [ReplyState] and written back to the database on a throttle and when it finishes or is stopped.
+ * Drives one chat at a time. History comes from core:database; the reply being streamed is shown
+ * live from [ReplyState] and written back to the database on a throttle and when it finishes or is
+ * stopped. The same view-model also lists past conversations and switches between them.
  */
 class ChatViewModel(
     private val chats: ChatRepository,
@@ -55,8 +65,34 @@ class ChatViewModel(
     private var dbMessages: List<ChatMessage> = emptyList()
     private var lastPersistMs = 0L
 
+    /** Model currently loaded into the engine by this view-model, so a model switch triggers a reload. */
+    private var loadedModelId: String? = null
+
+    private val historyQuery = MutableStateFlow("")
+
     init {
         initialChatId?.let { observeHistory(it) }
+
+        // Keeps the model indicator current when the user switches or installs a model.
+        viewModelScope.launch {
+            combine(settings.observe(), models.observeAll()) { prefs, records ->
+                val id = prefs.activeModelId
+                val name = id?.let { ModelCatalog.byId(it)?.displayName }
+                val ready = id != null && records.any { it.modelId == id && it.state == ModelState.INSTALLED }
+                name to ready
+            }.collect { (name, ready) ->
+                _state.update { it.copy(modelName = name, modelReady = ready) }
+            }
+        }
+
+        // Conversation list for the history sheet, with optional search.
+        viewModelScope.launch {
+            combine(chats.observeChats(), historyQuery) { all, q -> all to q }
+                .collectLatest { (all, q) ->
+                    val list = if (q.isBlank()) all else chats.search(q)
+                    _state.update { it.copy(history = list, historyQuery = q) }
+                }
+        }
     }
 
     fun send(text: String) {
@@ -71,6 +107,36 @@ class ChatViewModel(
     }
 
     fun dismissNotice() = _state.update { it.copy(notice = null) }
+
+    fun setHistoryQuery(query: String) {
+        historyQuery.value = query
+    }
+
+    /** Starts a fresh conversation. The old one stays in history. Ignored while a reply is streaming. */
+    fun newChat() {
+        if (_state.value.generating) return
+        historyJob?.cancel()
+        dbMessages = emptyList()
+        _state.update { it.copy(chatId = null, messages = emptyList(), notice = null) }
+    }
+
+    /** Opens a past conversation so the user can read it and continue it. */
+    fun openChat(chatId: Long) {
+        if (_state.value.generating) return
+        if (_state.value.chatId == chatId) return
+        dbMessages = emptyList()
+        _state.update { it.copy(chatId = chatId, messages = emptyList(), notice = null) }
+        observeHistory(chatId)
+    }
+
+    /** Deletes a conversation from this phone. The open chat is closed if it was the one deleted. */
+    fun deleteChat(chatId: Long) {
+        if (_state.value.generating && _state.value.chatId == chatId) return
+        viewModelScope.launch {
+            chats.delete(chatId)
+            if (_state.value.chatId == chatId) newChat()
+        }
+    }
 
     private fun observeHistory(chatId: Long) {
         historyJob?.cancel()
@@ -152,15 +218,22 @@ class ChatViewModel(
     }
 
     private suspend fun ensureModelLoaded(): Boolean {
-        if (engine.isLoaded) return true
         val s = settings.observe().first()
         val id = s.activeModelId
+        // Already loaded with the model the user wants: nothing to do.
+        if (engine.isLoaded && id != null && id == loadedModelId) return true
+
         val record = id?.let { models.find(it) }
         val descriptor = id?.let { ModelCatalog.byId(it) }
         val path = record?.localPath
         if (record == null || descriptor == null || record.state != ModelState.INSTALLED || path == null) {
             _state.update { it.copy(notice = "No model is ready yet. Pick one in Models.") }
             return false
+        }
+        // The user switched models since the last load: release the old one first.
+        if (engine.isLoaded) {
+            engine.unload()
+            loadedModelId = null
         }
         val error = engine.load(
             path,
@@ -170,6 +243,7 @@ class ChatViewModel(
             _state.update { it.copy(notice = "Could not load the model: $error") }
             return false
         }
+        loadedModelId = id
         _state.update { it.copy(modelName = descriptor.displayName) }
         return true
     }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Window background shown before Compose draws. Matches HydraColors.background. -->
+    <color name="hydra_window_bg">#FFFBFAF6</color>
+    <!-- Brand mark colour on that background. -->
+    <color name="hydra_mark">#FF1F7A4F</color>
+    <color name="hydra_launcher_bg">#FF0B0E0D</color>
+</resources>

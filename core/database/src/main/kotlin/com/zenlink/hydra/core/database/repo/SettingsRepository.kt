@@ -18,6 +18,7 @@ class SettingsRepository(private val dao: SettingDao) {
             performanceMode = map[KEY_PERF]?.let { runCatching { PerformanceMode.valueOf(it) }.getOrNull() }
                 ?: PerformanceMode.STANDARD,
             onboardingComplete = map[KEY_ONBOARDED]?.toBoolean() ?: false,
+            themeMode = map[KEY_THEME]?.takeIf { it in THEME_MODES } ?: "system",
         )
     }
 
@@ -27,6 +28,8 @@ class SettingsRepository(private val dao: SettingDao) {
     suspend fun setPerformanceMode(mode: PerformanceMode) = put(KEY_PERF, mode.name)
     suspend fun setOnboardingComplete(value: Boolean) = put(KEY_ONBOARDED, value.toString())
 
+    suspend fun setThemeMode(value: String) = put(KEY_THEME, if (value in THEME_MODES) value else "system")
+
     private suspend fun put(key: String, value: String) = dao.put(SettingEntity(key, value))
 
     private companion object {
@@ -35,5 +38,7 @@ class SettingsRepository(private val dao: SettingDao) {
         const val KEY_ACTIVE_MODEL = "active_model_id"
         const val KEY_PERF = "performance_mode"
         const val KEY_ONBOARDED = "onboarding_complete"
+        const val KEY_THEME = "theme_mode"
+        val THEME_MODES = setOf("system", "light", "dark")
     }
 }
