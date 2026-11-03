@@ -49,12 +49,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -532,6 +536,57 @@ fun HydraDialog(
             null
         },
     )
+}
+
+/** One option in a [HydraChoiceDialog]. */
+data class HydraChoice<T>(val value: T, val title: String, val description: String)
+
+/** A dialog that asks the user to pick exactly one of several options, with a short note for each. */
+@Composable
+fun <T> HydraChoiceDialog(
+    title: String,
+    message: String?,
+    choices: List<HydraChoice<T>>,
+    initial: T,
+    confirmLabel: String,
+    onConfirm: (T) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val c = MaterialTheme.hydra
+    var selected by remember { mutableStateOf(initial) }
+    HydraDialog(
+        title = title,
+        onDismiss = onDismiss,
+        confirmLabel = confirmLabel,
+        onConfirm = { onConfirm(selected) },
+    ) {
+        if (message != null) Text(message, style = MaterialTheme.typography.bodyMedium)
+        choices.forEach { choice ->
+            val isSelected = choice.value == selected
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(HydraShapes.card)
+                    .border(1.dp, if (isSelected) c.accent else c.border, HydraShapes.card)
+                    .background(if (isSelected) c.accentSoft else Color.Transparent)
+                    .selectable(selected = isSelected, role = Role.RadioButton, onClick = { selected = choice.value })
+                    .heightIn(min = 56.dp)
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                RadioButton(
+                    selected = isSelected,
+                    onClick = null,
+                    colors = RadioButtonDefaults.colors(selectedColor = c.accent, unselectedColor = c.textMuted),
+                )
+                Column(Modifier.weight(1f)) {
+                    Text(choice.title, style = MaterialTheme.typography.bodyLarge, color = c.textPrimary)
+                    Text(choice.description, style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
+                }
+            }
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------------------------

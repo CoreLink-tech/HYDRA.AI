@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.zenlink.hydra.core.database.repo.SettingsRepository
 import com.zenlink.hydra.core.download.ModelDownloads
 import com.zenlink.hydra.core.model.AppSettings
+import com.zenlink.hydra.core.model.DownloadNetwork
 import com.zenlink.hydra.core.model.ModelCatalog
 import com.zenlink.hydra.core.model.PerformanceMode
 import kotlinx.coroutines.flow.Flow
@@ -55,7 +56,7 @@ class SettingsViewModel(
         }
     }
 
-    fun setWifiOnly(value: Boolean) = viewModelScope.launch { settings.setWifiOnly(value) }
+    fun setDownloadNetwork(value: DownloadNetwork) = viewModelScope.launch { settings.setDownloadNetwork(value) }
 
     fun setCrashReporting(value: Boolean) = viewModelScope.launch { settings.setCrashReporting(value) }
 

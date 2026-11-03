@@ -33,6 +33,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import com.zenlink.hydra.core.designsystem.HydraChoice
+import com.zenlink.hydra.core.designsystem.HydraChoiceDialog
+import com.zenlink.hydra.core.designsystem.HydraSecondaryButton
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -109,7 +114,7 @@ fun OnboardingScreen(viewModel: OnboardingViewModel) {
                     else HowItWorksPage(onBack = { introPage = 0 }, onContinue = viewModel::begin)
                 OnboardingStep.DEVICE_CHECK -> CheckingPage(onStart = viewModel::runDeviceCheck)
                 OnboardingStep.RECOMMENDED -> ChooseModelPage(state, viewModel)
-                OnboardingStep.DOWNLOADING -> DownloadingPage(state)
+                OnboardingStep.DOWNLOADING -> DownloadingPage(state, viewModel)
                 OnboardingStep.FIRST_CHAT, OnboardingStep.DONE -> ReadyPage(state, onStart = viewModel::finish)
             }
         }
@@ -249,6 +254,8 @@ private fun ChooseModelPage(state: OnboardingState, viewModel: OnboardingViewMod
     val noneFit = rec != null && rec.fitting.isEmpty()
     val chosen = OnboardingFlow.selectedDescriptor(state)
     val retrying = state.error != null && state.recommendation != null
+    var askNetwork by rememberSaveable { mutableStateOf(false) }
+    val lastNetwork by viewModel.lastNetwork.collectAsStateWithLifecycle()
 
     Page(
         footer = {
@@ -258,12 +265,23 @@ private fun ChooseModelPage(state: OnboardingState, viewModel: OnboardingViewMod
                     retrying -> "Try again · ${ByteFormat.human(chosen.sizeBytes)}"
                     else -> "Download · ${ByteFormat.human(chosen.sizeBytes)}"
                 },
-                onClick = viewModel::download,
+                onClick = { askNetwork = true },
                 enabled = state.chosenModelId != null && !noneFit,
                 icon = HydraIcons.Download,
             )
         },
     ) {
+        if (askNetwork) {
+            DownloadNetworkDialog(
+                initial = lastNetwork,
+                confirmLabel = "Download",
+                onConfirm = {
+                    askNetwork = false
+                    viewModel.download(it)
+                },
+                onDismiss = { askNetwork = false },
+            )
+        }
         Spacer(Modifier.height(8.dp))
         Text("Pick a model", style = MaterialTheme.typography.headlineMedium, color = c.textPrimary)
         Spacer(Modifier.height(8.dp))
@@ -346,8 +364,30 @@ private fun ModelChoice(
 }
 
 @Composable
-private fun DownloadingPage(state: OnboardingState) {
+private fun DownloadingPage(state: OnboardingState, viewModel: OnboardingViewModel) {
     val c = MaterialTheme.hydra
+    var askNetwork by rememberSaveable { mutableStateOf(false) }
+    val lastNetwork by viewModel.lastNetwork.collectAsStateWithLifecycle()
+    // If nothing has arrived after a few seconds, the connection chosen is probably not available.
+    var stalled by remember { mutableStateOf(false) }
+    LaunchedEffect(state.downloadFraction > 0f) {
+        stalled = false
+        if (state.downloadFraction <= 0f) {
+            kotlinx.coroutines.delay(8_000)
+            stalled = true
+        }
+    }
+    if (askNetwork) {
+        DownloadNetworkDialog(
+            initial = lastNetwork,
+            confirmLabel = "Restart download",
+            onConfirm = {
+                askNetwork = false
+                viewModel.changeNetwork(it)
+            },
+            onDismiss = { askNetwork = false },
+        )
+    }
     val d = OnboardingFlow.selectedDescriptor(state)
     val percent = (state.downloadFraction * 100).toInt()
     Column(
@@ -380,6 +420,17 @@ private fun DownloadingPage(state: OnboardingState) {
             color = c.textMuted,
             textAlign = TextAlign.Center,
         )
+        if (stalled) {
+            Spacer(Modifier.height(20.dp))
+            Text(
+                "Not started yet. It may be waiting for the connection you chose (${lastNetwork.label}).",
+                style = MaterialTheme.typography.bodyMedium,
+                color = c.warning,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(12.dp))
+            HydraSecondaryButton("Change connection", onClick = { askNetwork = true })
+        }
     }
 }
 
@@ -406,4 +457,23 @@ private fun ReadyPage(state: OnboardingState, onStart: () -> Unit) {
             HydraBanner(text = it, tone = HydraTone.Danger, icon = HydraIcons.Error)
         }
     }
+}
+
+/** Asks which connection a model download may use. Shared wording so every screen asks the same way. */
+@Composable
+internal fun DownloadNetworkDialog(
+    initial: com.zenlink.hydra.core.model.DownloadNetwork,
+    confirmLabel: String,
+    onConfirm: (com.zenlink.hydra.core.model.DownloadNetwork) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    HydraChoiceDialog(
+        title = "Download over which connection?",
+        message = "Models are large, from a few hundred MB to a few GB.",
+        choices = com.zenlink.hydra.core.model.DownloadNetwork.entries.map { HydraChoice(it, it.label, it.detail) },
+        initial = initial,
+        confirmLabel = confirmLabel,
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+    )
 }

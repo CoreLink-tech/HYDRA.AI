@@ -6,10 +6,14 @@ import com.zenlink.hydra.core.database.repo.SettingsRepository
 import com.zenlink.hydra.core.download.ModelDownloads
 import com.zenlink.hydra.core.model.DeviceProfile
 import com.zenlink.hydra.core.model.DownloadEvent
+import com.zenlink.hydra.core.model.DownloadNetwork
 import com.zenlink.hydra.core.model.ModelCatalog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -18,12 +22,16 @@ class OnboardingViewModel(
     private val settings: SettingsRepository,
     private val downloads: ModelDownloads,
     private val deviceProfile: () -> DeviceProfile,
-    private val wifiOnly: suspend () -> Boolean,
     private val onFinished: () -> Unit,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(OnboardingState())
     val state: StateFlow<OnboardingState> = _state.asStateFlow()
+
+    /** The last connection choice, preselected in the "How should we download?" dialog. */
+    val lastNetwork: StateFlow<DownloadNetwork> = settings.observe()
+        .map { it.downloadNetwork }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, DownloadNetwork.ANY)
 
     init {
         viewModelScope.launch {
@@ -55,14 +63,24 @@ class OnboardingViewModel(
 
     fun choose(modelId: String) = _state.update { OnboardingFlow.chooseModel(it, modelId) }
 
-    /** Step 3: starts the download of the chosen model, respecting the Wi-Fi setting. */
-    fun download() {
+    /** Step 3: starts the download of the chosen model on the connection the user picked. */
+    fun download(network: DownloadNetwork) {
         val next = OnboardingFlow.startDownload(_state.value)
         _state.value = next
         if (next.step != OnboardingStep.DOWNLOADING) return
         val d = OnboardingFlow.selectedDescriptor(next) ?: return
         viewModelScope.launch {
-            downloads.start(d, wifiOnly())
+            settings.setDownloadNetwork(network)
+            downloads.start(d, network)
+        }
+    }
+
+    /** Restarts the running download on a different connection. Already downloaded bytes are kept. */
+    fun changeNetwork(network: DownloadNetwork) {
+        val d = OnboardingFlow.selectedDescriptor(_state.value) ?: return
+        viewModelScope.launch {
+            settings.setDownloadNetwork(network)
+            downloads.start(d, network)
         }
     }
 
@@ -79,7 +97,7 @@ class OnboardingViewModel(
 
     private fun failureText(event: DownloadEvent.Failed): String = when (event.reason) {
         com.zenlink.hydra.core.model.DownloadFailure.NO_NETWORK -> "No connection. Try again when you are online."
-        com.zenlink.hydra.core.model.DownloadFailure.WAITING_FOR_WIFI -> "Waiting for Wi-Fi. You can allow mobile data in settings."
+        com.zenlink.hydra.core.model.DownloadFailure.WAITING_FOR_WIFI -> "Waiting for Wi-Fi. Choose mobile data to download now."
         com.zenlink.hydra.core.model.DownloadFailure.NOT_ENOUGH_STORAGE -> "Not enough free storage for this model."
         com.zenlink.hydra.core.model.DownloadFailure.CHECKSUM_MISMATCH -> "The file did not match its checksum. Try again."
         else -> "The download did not finish. Try again."

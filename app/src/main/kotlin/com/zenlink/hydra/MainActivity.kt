@@ -221,7 +221,6 @@ private fun HydraRoot(app: HydraApp, initial: AppSettings) {
                         settings = settingsRepo,
                         downloads = app.downloads,
                         deviceProfile = { DeviceChecker(app).snapshot() },
-                        wifiOnly = { settingsRepo.observe().first().wifiOnlyDownloads },
                         onFinished = { nav.navigate(Route.Chat.path) { popUpTo(0) } },
                     )
                 })

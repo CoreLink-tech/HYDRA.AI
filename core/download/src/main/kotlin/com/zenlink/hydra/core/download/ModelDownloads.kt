@@ -1,6 +1,7 @@
 package com.zenlink.hydra.core.download
 
 import com.zenlink.hydra.core.model.DownloadEvent
+import com.zenlink.hydra.core.model.DownloadNetwork
 import com.zenlink.hydra.core.model.ModelDescriptor
 import kotlinx.coroutines.flow.Flow
 
@@ -13,7 +14,7 @@ interface ModelDownloads {
     val events: Flow<DownloadEvent>
 
     /** Queues a download and returns immediately. Progress arrives on [events]. */
-    fun start(descriptor: ModelDescriptor, wifiOnly: Boolean)
+    fun start(descriptor: ModelDescriptor, network: DownloadNetwork)
 
     /** Stops an in-flight download. The partial file is kept so it can resume later. */
     fun cancel(modelId: String)

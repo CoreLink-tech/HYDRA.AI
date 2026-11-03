@@ -1,5 +1,6 @@
 package com.zenlink.hydra.feature.settings
 
+import com.zenlink.hydra.core.model.DownloadNetwork
 import com.zenlink.hydra.core.billing.EntitlementPolicy
 import com.zenlink.hydra.core.model.Entitlement
 import com.zenlink.hydra.core.model.Plan
@@ -33,9 +34,9 @@ object SettingsPlanner {
         return "$activeShares of $limit live shares used"
     }
 
-    /** Wi-Fi-only is the safe default. Turning it off allows large downloads on mobile data. */
-    fun wifiOnlyWarning(wifiOnly: Boolean): String? =
-        if (wifiOnly) null else "Models are several GB. Downloads on mobile data can use a lot of your plan."
+    /** Only Wi-Fi keeps downloads off your data plan. Any choice that allows mobile data gets a note. */
+    fun networkWarning(network: DownloadNetwork): String? =
+        if (network == DownloadNetwork.WIFI_ONLY) null else "Models are large. Downloads on mobile data can use a lot of your plan."
 
     /** The data-deletion steps shown before the user confirms. */
     fun deletionSteps(): List<String> = listOf(

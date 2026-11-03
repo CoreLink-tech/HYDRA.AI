@@ -51,6 +51,9 @@ import com.zenlink.hydra.core.designsystem.HydraTone
 import com.zenlink.hydra.core.designsystem.HydraTopBar
 import com.zenlink.hydra.core.designsystem.hydra
 import com.zenlink.hydra.core.download.StoragePolicy
+import com.zenlink.hydra.core.designsystem.HydraChoiceDialog
+import com.zenlink.hydra.core.designsystem.HydraChoice
+import com.zenlink.hydra.core.model.DownloadNetwork
 import com.zenlink.hydra.core.model.ByteFormat
 import com.zenlink.hydra.core.model.ModelState
 import java.util.Locale
@@ -64,6 +67,7 @@ fun ModelsScreen(viewModel: ModelsViewModel) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var expandedId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingDelete by remember { mutableStateOf<ModelRow?>(null) }
+    var pendingDownload by remember { mutableStateOf<ModelRow?>(null) }
 
     val installed = state.rows.filter { it.state == ModelState.INSTALLED }
     val downloading = state.rows.filter {
@@ -79,7 +83,6 @@ fun ModelsScreen(viewModel: ModelsViewModel) {
             title = "Models",
             subtitle = buildString {
                 append("${installed.size} installed · ${ByteFormat.human(state.installedBytes)} on this phone")
-                if (state.wifiOnly) append(" · Wi-Fi only downloads")
             },
         )
         HydraDivider()
@@ -99,11 +102,26 @@ fun ModelsScreen(viewModel: ModelsViewModel) {
                     )
                 }
             }
-            section("Installed", installed, expandedId, { expandedId = if (expandedId == it) null else it }, viewModel) { pendingDelete = it }
-            section("Downloading", downloading, expandedId, { expandedId = if (expandedId == it) null else it }, viewModel) { pendingDelete = it }
-            section("Available", available, expandedId, { expandedId = if (expandedId == it) null else it }, viewModel) { pendingDelete = it }
-            section("Not available on this phone", unavailable, expandedId, { expandedId = if (expandedId == it) null else it }, viewModel) { pendingDelete = it }
+            section("Installed", installed, expandedId, { expandedId = if (expandedId == it) null else it }, viewModel, { pendingDownload = it }) { pendingDelete = it }
+            section("Downloading", downloading, expandedId, { expandedId = if (expandedId == it) null else it }, viewModel, { pendingDownload = it }) { pendingDelete = it }
+            section("Available", available, expandedId, { expandedId = if (expandedId == it) null else it }, viewModel, { pendingDownload = it }) { pendingDelete = it }
+            section("Not available on this phone", unavailable, expandedId, { expandedId = if (expandedId == it) null else it }, viewModel, { pendingDownload = it }) { pendingDelete = it }
         }
+    }
+
+    pendingDownload?.let { row ->
+        HydraChoiceDialog(
+            title = "Download over which connection?",
+            message = "${row.descriptor.displayName} is ${ByteFormat.human(row.descriptor.sizeBytes)}.",
+            choices = DownloadNetwork.entries.map { HydraChoice(it, it.label, it.detail) },
+            initial = state.network,
+            confirmLabel = "Download",
+            onConfirm = {
+                viewModel.download(row.descriptor.id, it)
+                pendingDownload = null
+            },
+            onDismiss = { pendingDownload = null },
+        )
     }
 
     pendingDelete?.let { row ->
@@ -128,6 +146,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.section(
     expandedId: String?,
     onToggle: (String) -> Unit,
     viewModel: ModelsViewModel,
+    onAskDownload: (ModelRow) -> Unit,
     onAskDelete: (ModelRow) -> Unit,
 ) {
     if (rows.isEmpty()) return
@@ -137,7 +156,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.section(
             row = row,
             expanded = expandedId == row.descriptor.id,
             onToggle = { onToggle(row.descriptor.id) },
-            onDownload = { viewModel.download(row.descriptor.id) },
+            onDownload = { onAskDownload(row) },
             onCancel = { viewModel.cancel(row.descriptor.id) },
             onSwitch = { viewModel.switchTo(row.descriptor.id) },
             onDelete = { onAskDelete(row) },

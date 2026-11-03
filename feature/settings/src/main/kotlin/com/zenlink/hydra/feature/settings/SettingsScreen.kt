@@ -36,6 +36,7 @@ import com.zenlink.hydra.core.designsystem.HydraTopBar
 import com.zenlink.hydra.core.designsystem.ThemeMode
 import com.zenlink.hydra.core.designsystem.hydra
 import com.zenlink.hydra.core.model.ByteFormat
+import com.zenlink.hydra.core.model.DownloadNetwork
 import com.zenlink.hydra.core.model.PerformanceMode
 
 /**
@@ -163,13 +164,25 @@ fun SettingsScreen(
             // ---- Downloads
             HydraSectionTitle("Downloads")
             HydraGroup {
-                HydraSwitchRow(
-                    title = "Wi-Fi only downloads",
-                    subtitle = "Models are large. Keep this on to protect your mobile data.",
-                    checked = state.settings.wifiOnlyDownloads,
-                    onChange = viewModel::setWifiOnly,
-                )
-                SettingsPlanner.wifiOnlyWarning(state.settings.wifiOnlyDownloads)?.let {
+                Column(Modifier.padding(16.dp)) {
+                    Text("Download connection", style = MaterialTheme.typography.bodyLarge, color = c.textPrimary)
+                    Text(
+                        "You are asked each time you download a model. This is the option that is preselected. ${state.settings.downloadNetwork.detail}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = c.textSecondary,
+                        modifier = Modifier.padding(top = 2.dp, bottom = 12.dp),
+                    )
+                    HydraSegmented(
+                        options = listOf(
+                            DownloadNetwork.WIFI_ONLY to "Wi-Fi",
+                            DownloadNetwork.MOBILE_ONLY to "Mobile",
+                            DownloadNetwork.ANY to "Both",
+                        ),
+                        selected = state.settings.downloadNetwork,
+                        onSelect = viewModel::setDownloadNetwork,
+                    )
+                }
+                SettingsPlanner.networkWarning(state.settings.downloadNetwork)?.let {
                     Text(
                         it,
                         style = MaterialTheme.typography.bodySmall,

@@ -2,6 +2,7 @@ package com.zenlink.hydra.feature.settings
 
 import com.zenlink.hydra.core.model.Entitlement
 import com.zenlink.hydra.core.model.Plan
+import com.zenlink.hydra.core.model.DownloadNetwork
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -48,12 +49,12 @@ class SettingsPlannerTest {
 
     @Test
     fun wifiOnlyOnHasNoWarning() {
-        assertNull(SettingsPlanner.wifiOnlyWarning(true))
+        assertNull(SettingsPlanner.networkWarning(DownloadNetwork.WIFI_ONLY))
     }
 
     @Test
     fun wifiOnlyOffWarnsAboutData() {
-        assertTrue(SettingsPlanner.wifiOnlyWarning(false)!!.contains("mobile data"))
+        assertTrue(SettingsPlanner.networkWarning(DownloadNetwork.MOBILE_ONLY)!!.contains("mobile data"))
     }
 
     @Test

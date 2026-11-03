@@ -6,6 +6,7 @@ import com.zenlink.hydra.core.database.repo.ModelRepository
 import com.zenlink.hydra.core.database.repo.SettingsRepository
 import com.zenlink.hydra.core.download.ModelDownloads
 import com.zenlink.hydra.core.model.DownloadEvent
+import com.zenlink.hydra.core.model.DownloadNetwork
 import com.zenlink.hydra.core.model.ModelDescriptor
 import com.zenlink.hydra.core.model.ModelTier
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 data class ModelsUiState(
     val rows: List<ModelRow> = emptyList(),
     val installedBytes: Long = 0L,
-    val wifiOnly: Boolean = true,
+    val network: DownloadNetwork = DownloadNetwork.ANY,
     val notice: String? = null,
 )
 
@@ -70,14 +71,14 @@ class ModelsViewModel(
                 ModelsUiState(
                     rows = rows,
                     installedBytes = ModelsPlanner.installedBytes(byId),
-                    wifiOnly = prefs.wifiOnlyDownloads,
+                    network = prefs.downloadNetwork,
                     notice = note,
                 )
             }.collect { _state.value = it }
         }
     }
 
-    fun download(modelId: String) {
+    fun download(modelId: String, network: DownloadNetwork) {
         val d = catalogue.firstOrNull { it.id == modelId } ?: return
         val row = _state.value.rows.firstOrNull { it.descriptor.id == modelId } ?: return
         if (!ModelsPlanner.canStart(row.storage)) {
@@ -85,7 +86,8 @@ class ModelsViewModel(
             return
         }
         notice.value = null
-        downloads.start(d, _state.value.wifiOnly)
+        viewModelScope.launch { settings.setDownloadNetwork(network) }
+        downloads.start(d, network)
     }
 
     fun cancel(modelId: String) = downloads.cancel(modelId)
