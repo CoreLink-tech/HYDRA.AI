@@ -1,17 +1,8 @@
-job=check status=success run=6 sha=d3641780c7f0cfe2fcb1264e4b7161875fc47feb
+job=check status=success run=7 sha=d738502bc41f978ce0cd6f15c4207679ab33243e
 ---- errors and failures ----
-e: The daemon has terminated unexpectedly on startup attempt #1 with error code: 0. The daemon process output:
-    1. Kotlin compile daemon is ready
-
-> Task :core:database:generateDebugUnitTestStubRFile
-> Task :core:database:javaPreCompileDebugUnitTest FROM-CACHE
---
-BUILD SUCCESSFUL in 2m 31s
-268 actionable tasks: 188 executed, 80 from cache
+BUILD SUCCESSFUL in 2m 42s
+268 actionable tasks: 187 executed, 81 from cache
 ---- last 60 lines ----
-> Task :core:download:testDebugUnitTest
-> Task :core:sharing:testDebugUnitTest
-> Task :core:database:compileDebugJavaWithJavac
 > Task :core:database:bundleLibCompileToJarDebug
 > Task :core:database:bundleLibRuntimeToJarDebug
 > Task :core:database:processDebugJavaRes
@@ -20,17 +11,17 @@ BUILD SUCCESSFUL in 2m 31s
 > Task :feature:settings:bundleLibCompileToJarDebug
 > Task :feature:settings:bundleLibRuntimeToJarDebug
 > Task :feature:settings:processDebugJavaRes
+> Task :feature:models:compileDebugKotlin
+> Task :feature:models:compileDebugJavaWithJavac NO-SOURCE
+> Task :feature:models:bundleLibCompileToJarDebug
 > Task :core:database:kspDebugUnitTestKotlin
+> Task :feature:models:bundleLibRuntimeToJarDebug
+> Task :feature:models:processDebugJavaRes
 > Task :feature:onboarding:compileDebugKotlin
 > Task :feature:onboarding:compileDebugJavaWithJavac NO-SOURCE
 > Task :feature:onboarding:bundleLibCompileToJarDebug
 > Task :feature:onboarding:bundleLibRuntimeToJarDebug
 > Task :feature:onboarding:processDebugJavaRes
-> Task :feature:models:compileDebugKotlin
-> Task :feature:models:compileDebugJavaWithJavac NO-SOURCE
-> Task :feature:models:bundleLibCompileToJarDebug
-> Task :feature:models:bundleLibRuntimeToJarDebug
-> Task :feature:models:processDebugJavaRes
 > Task :core:database:compileDebugUnitTestKotlin
 > Task :core:database:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :core:database:processDebugUnitTestJavaRes
@@ -47,25 +38,28 @@ BUILD SUCCESSFUL in 2m 31s
 > Task :feature:chat:compileDebugKotlin
 > Task :feature:chat:compileDebugJavaWithJavac NO-SOURCE
 > Task :feature:chat:bundleLibCompileToJarDebug
-> Task :app:compileDebugKotlin
+> Task :feature:onboarding:testDebugUnitTest
 > Task :feature:models:testDebugUnitTest
 > Task :feature:chat:bundleLibRuntimeToJarDebug
 > Task :feature:chat:processDebugJavaRes
-> Task :feature:onboarding:testDebugUnitTest
 > Task :feature:settings:testDebugUnitTest
+> Task :app:compileDebugKotlin
 > Task :feature:chat:compileDebugUnitTestKotlin
 > Task :feature:chat:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :feature:chat:processDebugUnitTestJavaRes
 > Task :feature:chat:testDebugUnitTest
 > Task :app:compileDebugJavaWithJavac
+> Task :app:processDebugJavaRes
 > Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:bundleDebugClassesToCompileJar
-> Task :app:processDebugJavaRes
+
 > Task :app:compileDebugUnitTestKotlin
+w: file:///home/runner/work/HYDRA.AI/HYDRA.AI/app/src/test/kotlin/com/zenlink/hydra/AppRouterTest.kt:52:37 Condition is always 'true'.
+
 > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :app:processDebugUnitTestJavaRes
 > Task :app:testDebugUnitTest
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1793735716316.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1793748353499.json
 
-BUILD SUCCESSFUL in 2m 31s
-268 actionable tasks: 188 executed, 80 from cache
+BUILD SUCCESSFUL in 2m 42s
+268 actionable tasks: 187 executed, 81 from cache
