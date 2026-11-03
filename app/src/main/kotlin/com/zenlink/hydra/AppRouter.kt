@@ -8,7 +8,9 @@ sealed class Route(val path: String) {
     data object Settings : Route("settings")
 
     companion object {
-        val tabs: List<Route> = listOf(Chat, Models, Settings)
+        // A getter, not a stored value. Route and its objects reference each other during class
+        // initialisation, so a stored list can capture null for whichever object loads first.
+        val tabs: List<Route> get() = listOf(Chat, Models, Settings)
     }
 }
 

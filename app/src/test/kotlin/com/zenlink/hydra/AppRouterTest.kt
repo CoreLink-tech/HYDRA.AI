@@ -44,4 +44,11 @@ class AppRouterTest {
         assertNull(AppRouter.tabFor(Route.Onboarding.path))
         assertEquals(Route.Models, AppRouter.tabFor(Route.Models.path))
     }
+
+    @Test
+    fun tabsNeverContainNull() {
+        // Regression: touching Route.Chat first used to leave a null inside Route.tabs.
+        assertEquals(3, Route.tabs.size)
+        assertTrue(Route.tabs.all { it != null && it.path.isNotBlank() })
+    }
 }
