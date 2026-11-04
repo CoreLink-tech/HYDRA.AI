@@ -28,5 +28,6 @@ class HydraApp : Application() {
         // sqlcipher-android (net.zetetic) does not load its native library by itself. It must be
         // loaded before the first database is opened, or the first query throws UnsatisfiedLinkError.
         System.loadLibrary("sqlcipher")
+        DownloadRecorder(this).start()
     }
 }

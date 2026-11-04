@@ -413,6 +413,10 @@ private fun DownloadingPage(state: OnboardingState, viewModel: OnboardingViewMod
                 color = c.textSecondary,
             )
         }
+        state.statusText?.let {
+            Spacer(Modifier.height(10.dp))
+            Text(it, style = MaterialTheme.typography.bodyMedium, color = c.textSecondary, textAlign = TextAlign.Center)
+        }
         Spacer(Modifier.height(16.dp))
         Text(
             "You can leave this screen. The download continues in the background and is checked for corruption when it finishes.",

@@ -35,6 +35,7 @@ class ModelsViewModel(
 
     private val progress = MutableStateFlow<Map<String, Float>>(emptyMap())
     private val notice = MutableStateFlow<String?>(null)
+    private var statusShown = false
 
     private val _state = MutableStateFlow(ModelsUiState())
     val state: StateFlow<ModelsUiState> = _state.asStateFlow()
@@ -44,13 +45,22 @@ class ModelsViewModel(
             downloads.events.collect { event ->
                 when (event) {
                     is DownloadEvent.Progress -> if (event.total > 0) {
+                        if (statusShown) {
+                            notice.value = null
+                            statusShown = false
+                        }
                         progress.value = progress.value + (event.modelId to event.downloaded.toFloat() / event.total)
                     }
                     is DownloadEvent.Verifying -> progress.value = progress.value - event.modelId
+                    is DownloadEvent.Status -> {
+                        notice.value = event.text
+                        statusShown = true
+                    }
                     is DownloadEvent.Installed -> progress.value = progress.value - event.modelId
                     is DownloadEvent.Failed -> {
                         progress.value = progress.value - event.modelId
-                        notice.value = "Download failed: ${event.reason.name.lowercase().replace('_', ' ')}."
+                        notice.value = "Download failed: ${event.reason.name.lowercase().replace('_', ' ')}" +
+                            (if (event.detail.isBlank()) "." else " (${event.detail}).")
                     }
                 }
             }
@@ -90,10 +100,16 @@ class ModelsViewModel(
         downloads.start(d, network)
     }
 
-    fun cancel(modelId: String) = downloads.cancel(modelId)
+    fun cancel(modelId: String) {
+        downloads.cancel(modelId)
+        viewModelScope.launch { models.forget(modelId) }
+    }
 
     fun delete(modelId: String) {
-        viewModelScope.launch { downloads.delete(modelId) }
+        viewModelScope.launch {
+            downloads.delete(modelId)
+            models.forget(modelId)
+        }
     }
 
     fun switchTo(modelId: String) {

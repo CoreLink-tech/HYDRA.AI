@@ -46,9 +46,12 @@ class OnboardingViewModel(
                         _state.update { OnboardingFlow.onDownloadFinished(it) }
                     }
                     is DownloadEvent.Failed -> if (event.modelId == chosen) {
-                        _state.update { OnboardingFlow.onDownloadFailed(it, failureText(event)) }
+                        _state.update { OnboardingFlow.onDownloadFailed(it, failureText(event) + detailSuffix(event)) }
                     }
                     is DownloadEvent.Verifying -> Unit
+                    is DownloadEvent.Status -> if (event.modelId == chosen) {
+                        _state.update { if (it.downloadFraction <= 0f) it.copy(statusText = event.text) else it }
+                    }
                 }
             }
         }
@@ -94,6 +97,10 @@ class OnboardingViewModel(
             onFinished()
         }
     }
+
+    /** The technical reason, so a failure can be reported and fixed instead of guessed at. */
+    private fun detailSuffix(event: DownloadEvent.Failed): String =
+        if (event.detail.isBlank()) "" else " (${event.detail})"
 
     private fun failureText(event: DownloadEvent.Failed): String = when (event.reason) {
         com.zenlink.hydra.core.model.DownloadFailure.NO_NETWORK -> "No connection. Try again when you are online."

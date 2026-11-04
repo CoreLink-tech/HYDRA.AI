@@ -20,7 +20,11 @@ object DownloadBus {
         flow.tryEmit(DownloadEvent.Installed(modelId))
     }
 
-    fun failed(modelId: String, reason: DownloadFailure) {
-        flow.tryEmit(DownloadEvent.Failed(modelId, reason))
+    fun failed(modelId: String, reason: DownloadFailure, detail: String = "") {
+        flow.tryEmit(DownloadEvent.Failed(modelId, reason, detail))
+    }
+
+    fun status(modelId: String, text: String) {
+        flow.tryEmit(DownloadEvent.Status(modelId, text))
     }
 }

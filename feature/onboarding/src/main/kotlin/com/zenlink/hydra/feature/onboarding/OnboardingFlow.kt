@@ -17,6 +17,8 @@ data class OnboardingState(
     val chosenModelId: String? = null,
     val downloadFraction: Float = 0f,
     val error: String? = null,
+    /** What the download is doing before bytes arrive, e.g. "Waiting for Wi-Fi". */
+    val statusText: String? = null,
 )
 
 /** Pure step machine. Keeps the rules testable on the JVM with no Android types. */
@@ -46,11 +48,11 @@ object OnboardingFlow {
     fun startDownload(state: OnboardingState): OnboardingState {
         if (state.step != OnboardingStep.RECOMMENDED) return state
         if (state.chosenModelId == null) return state.copy(error = "Pick a model first.")
-        return state.copy(step = OnboardingStep.DOWNLOADING, downloadFraction = 0f, error = null)
+        return state.copy(step = OnboardingStep.DOWNLOADING, downloadFraction = 0f, error = null, statusText = "Starting\u2026")
     }
 
     fun onProgress(state: OnboardingState, fraction: Float): OnboardingState =
-        if (state.step == OnboardingStep.DOWNLOADING) state.copy(downloadFraction = fraction.coerceIn(0f, 1f)) else state
+        if (state.step == OnboardingStep.DOWNLOADING) state.copy(downloadFraction = fraction.coerceIn(0f, 1f), statusText = null) else state
 
     fun onDownloadFinished(state: OnboardingState): OnboardingState =
         if (state.step == OnboardingStep.DOWNLOADING) state.copy(step = OnboardingStep.FIRST_CHAT, downloadFraction = 1f) else state

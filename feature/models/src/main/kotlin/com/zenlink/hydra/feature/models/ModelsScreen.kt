@@ -93,10 +93,11 @@ fun ModelsScreen(viewModel: ModelsViewModel) {
         ) {
             state.notice?.let { note ->
                 item(key = "notice") {
+                    val isProblem = note.startsWith("Download failed") || note.startsWith("Not enough")
                     HydraBanner(
                         text = note,
-                        tone = HydraTone.Danger,
-                        icon = HydraIcons.Error,
+                        tone = if (isProblem) HydraTone.Danger else HydraTone.Accent,
+                        icon = if (isProblem) HydraIcons.Error else HydraIcons.Info,
                         onDismiss = viewModel::dismissNotice,
                         modifier = Modifier.padding(top = 8.dp),
                     )

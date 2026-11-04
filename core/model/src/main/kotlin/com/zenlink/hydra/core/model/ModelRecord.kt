@@ -18,7 +18,10 @@ sealed interface DownloadEvent {
     data class Progress(val modelId: String, val downloaded: Long, val total: Long) : DownloadEvent
     data class Verifying(val modelId: String) : DownloadEvent
     data class Installed(val modelId: String) : DownloadEvent
-    data class Failed(val modelId: String, val reason: DownloadFailure) : DownloadEvent
+    data class Failed(val modelId: String, val reason: DownloadFailure, val detail: String = "") : DownloadEvent
+
+    /** Plain-language state before bytes arrive, such as "Waiting for Wi-Fi" or "Connecting". */
+    data class Status(val modelId: String, val text: String) : DownloadEvent
 }
 
 enum class DownloadFailure {
