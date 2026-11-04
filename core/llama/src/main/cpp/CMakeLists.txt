@@ -11,6 +11,12 @@ if(NOT EXISTS "${LLAMA_DIR}/include/llama.h")
     "llama.cpp not found at ${LLAMA_DIR}. Run scripts/vendor-llama.sh first (see README).")
 endif()
 
+# Always optimise. Gradle debug builds default to an unoptimised native build, and an unoptimised
+# llama.cpp is so slow that a reply never seems to start. Must be set before add_subdirectory.
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+
 # Only build the libraries we link against. No tools, examples, tests or HTTP server.
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(LLAMA_BUILD_COMMON OFF CACHE BOOL "" FORCE)

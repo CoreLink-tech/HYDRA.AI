@@ -328,6 +328,19 @@ private fun AssistantMessage(message: ChatMessage) {
         Spacer(Modifier.height(8.dp))
         if (message.content.isEmpty() && streaming) {
             ThinkingDots()
+            // Long messages take a while to read on a phone. Say so instead of looking frozen.
+            var slow by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(6_000)
+                slow = true
+            }
+            if (slow) {
+                Text(
+                    "Still reading your message. Longer messages take longer on a phone.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.hydra.textMuted,
+                )
+            }
         } else {
             SelectionContainer { MarkdownText(message.content) }
         }
