@@ -40,6 +40,8 @@ data class ChatUiState(
     /** Past conversations, newest first. Filtered by [historyQuery] when it is not blank. */
     val history: List<ChatSummary> = emptyList(),
     val historyQuery: String = "",
+    /** Speed of the last reply, e.g. "42 tokens · 5.1 tokens/s". Shown so slow phones are explained, not hidden. */
+    val stats: String? = null,
 )
 
 /**
@@ -161,7 +163,7 @@ class ChatViewModel(
     }
 
     private suspend fun runTurn(prompt: String) {
-        _state.update { it.copy(generating = true, notice = null) }
+        _state.update { it.copy(generating = true, notice = null, stats = null) }
         var assistantId: Long? = null
         var chatIdForPersist: Long? = null
         var reply = ReplyState()
@@ -190,7 +192,29 @@ class ChatViewModel(
             val mode = settings.observe().first().performanceMode
             val sample = SampleConfig(maxNewTokens = mode.maxNewTokens)
 
+            val startedAt = android.os.SystemClock.elapsedRealtime()
+            var firstTokenAt = 0L
+            var tokens = 0
             engine.generate(fullPrompt, sample).collect { event ->
+                if (event is com.zenlink.hydra.core.llama.GenerationEvent.Token) {
+                    if (tokens == 0) firstTokenAt = android.os.SystemClock.elapsedRealtime()
+                    tokens++
+                }
+                if (event is com.zenlink.hydra.core.llama.GenerationEvent.Done && tokens > 0) {
+                    val endAt = android.os.SystemClock.elapsedRealtime()
+                    val decodeMs = (endAt - firstTokenAt).coerceAtLeast(1L)
+                    val perSecond = if (tokens > 1) (tokens - 1) * 1000f / decodeMs else 0f
+                    val readSeconds = (firstTokenAt - startedAt) / 1000f
+                    _state.update {
+                        it.copy(
+                            stats = String.format(
+                                java.util.Locale.US,
+                                "%d tokens \u00b7 %.1f tokens/s \u00b7 first word after %.0f s",
+                                tokens, perSecond, readSeconds,
+                            ),
+                        )
+                    }
+                }
                 reply = ReplyAssembler.apply(reply, event)
                 liveReply = reply
                 publish()

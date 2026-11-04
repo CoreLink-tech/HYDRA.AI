@@ -189,7 +189,12 @@ fun ChatScreen(
                             }
                         }
                     }
-                    item(key = "end") { Spacer(Modifier.height(4.dp)) }
+                    item(key = "end") {
+                        state.stats?.let {
+                            Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.hydra.textMuted)
+                        }
+                        Spacer(Modifier.height(4.dp))
+                    }
                 }
             }
 
@@ -329,14 +334,16 @@ private fun AssistantMessage(message: ChatMessage) {
         if (message.content.isEmpty() && streaming) {
             ThinkingDots()
             // Long messages take a while to read on a phone. Say so instead of looking frozen.
-            var slow by remember { mutableStateOf(false) }
+            var seconds by remember { mutableStateOf(0) }
             LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(6_000)
-                slow = true
+                while (true) {
+                    kotlinx.coroutines.delay(1_000)
+                    seconds++
+                }
             }
-            if (slow) {
+            if (seconds >= 5) {
                 Text(
-                    "Still reading your message. Longer messages take longer on a phone.",
+                    "Still reading your message ($seconds s). Longer messages take longer on a phone.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.hydra.textMuted,
                 )
