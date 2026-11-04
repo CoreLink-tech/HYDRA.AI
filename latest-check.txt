@@ -1,7 +1,7 @@
-job=check status=success run=7 sha=d738502bc41f978ce0cd6f15c4207679ab33243e
+job=check status=success run=8 sha=4eca2b5aa8c1a0fca6869bb5665aae7511316caa
 ---- errors and failures ----
-BUILD SUCCESSFUL in 2m 42s
-268 actionable tasks: 187 executed, 81 from cache
+BUILD SUCCESSFUL in 2m 39s
+268 actionable tasks: 186 executed, 82 from cache
 ---- last 60 lines ----
 > Task :core:database:bundleLibCompileToJarDebug
 > Task :core:database:bundleLibRuntimeToJarDebug
@@ -11,20 +11,20 @@ BUILD SUCCESSFUL in 2m 42s
 > Task :feature:settings:bundleLibCompileToJarDebug
 > Task :feature:settings:bundleLibRuntimeToJarDebug
 > Task :feature:settings:processDebugJavaRes
+> Task :core:database:kspDebugUnitTestKotlin
 > Task :feature:models:compileDebugKotlin
 > Task :feature:models:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:database:compileDebugUnitTestKotlin
 > Task :feature:models:bundleLibCompileToJarDebug
-> Task :core:database:kspDebugUnitTestKotlin
+> Task :core:database:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :feature:models:bundleLibRuntimeToJarDebug
 > Task :feature:models:processDebugJavaRes
+> Task :core:database:processDebugUnitTestJavaRes
 > Task :feature:onboarding:compileDebugKotlin
 > Task :feature:onboarding:compileDebugJavaWithJavac NO-SOURCE
 > Task :feature:onboarding:bundleLibCompileToJarDebug
 > Task :feature:onboarding:bundleLibRuntimeToJarDebug
 > Task :feature:onboarding:processDebugJavaRes
-> Task :core:database:compileDebugUnitTestKotlin
-> Task :core:database:compileDebugUnitTestJavaWithJavac NO-SOURCE
-> Task :core:database:processDebugUnitTestJavaRes
 > Task :feature:onboarding:compileDebugUnitTestKotlin
 > Task :feature:onboarding:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :feature:onboarding:processDebugUnitTestJavaRes
@@ -38,20 +38,20 @@ BUILD SUCCESSFUL in 2m 42s
 > Task :feature:chat:compileDebugKotlin
 > Task :feature:chat:compileDebugJavaWithJavac NO-SOURCE
 > Task :feature:chat:bundleLibCompileToJarDebug
-> Task :feature:onboarding:testDebugUnitTest
 > Task :feature:models:testDebugUnitTest
 > Task :feature:chat:bundleLibRuntimeToJarDebug
 > Task :feature:chat:processDebugJavaRes
 > Task :feature:settings:testDebugUnitTest
+> Task :feature:onboarding:testDebugUnitTest
 > Task :app:compileDebugKotlin
 > Task :feature:chat:compileDebugUnitTestKotlin
 > Task :feature:chat:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :feature:chat:processDebugUnitTestJavaRes
 > Task :feature:chat:testDebugUnitTest
 > Task :app:compileDebugJavaWithJavac
-> Task :app:processDebugJavaRes
-> Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:processDebugJavaRes
 
 > Task :app:compileDebugUnitTestKotlin
 w: file:///home/runner/work/HYDRA.AI/HYDRA.AI/app/src/test/kotlin/com/zenlink/hydra/AppRouterTest.kt:52:37 Condition is always 'true'.
@@ -59,7 +59,7 @@ w: file:///home/runner/work/HYDRA.AI/HYDRA.AI/app/src/test/kotlin/com/zenlink/hy
 > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :app:processDebugUnitTestJavaRes
 > Task :app:testDebugUnitTest
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1793748353499.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1793769439569.json
 
-BUILD SUCCESSFUL in 2m 42s
-268 actionable tasks: 187 executed, 81 from cache
+BUILD SUCCESSFUL in 2m 39s
+268 actionable tasks: 186 executed, 82 from cache
