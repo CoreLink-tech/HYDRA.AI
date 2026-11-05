@@ -1,8 +1,8 @@
 package com.zenlink.hydra.core.billing
 
+import com.zenlink.hydra.core.model.Plan
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import com.zenlink.hydra.core.model.Plan
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -29,5 +29,25 @@ class MockBillingGatewayTest {
         gw.purchase(ProductIds.PRO_ANNUAL)
         gw.expireNow()
         assertTrue(!gw.entitlement.first().isProActive(1_000L))
+    }
+
+    @Test
+    fun purchaseThenExpireAffectsShareLimitPolicy() = runBlocking {
+        val now = 5_000L
+        val gw = MockBillingGateway(nowMs = { now })
+        assertEquals(
+            EntitlementPolicy.FREE_LIVE_SHARES,
+            EntitlementPolicy.liveShareLimit(gw.entitlement.first(), now),
+        )
+        gw.purchase(ProductIds.PRO_MONTHLY)
+        assertEquals(
+            EntitlementPolicy.PRO_LIVE_SHARES,
+            EntitlementPolicy.liveShareLimit(gw.entitlement.first(), now),
+        )
+        gw.expireNow()
+        assertEquals(
+            EntitlementPolicy.FREE_LIVE_SHARES,
+            EntitlementPolicy.liveShareLimit(gw.entitlement.first(), now),
+        )
     }
 }

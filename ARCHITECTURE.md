@@ -6,6 +6,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                         :app                                │
 │  MainActivity · AppRouter · HydraApp (composition root)     │
+│  (database, repos, llama, downloads, billing gateway)       │
 └────────────┬───────────────────────────────┬────────────────┘
              │                               │
    ┌─────────▼─────────┐           ┌─────────▼─────────┐
@@ -23,6 +24,10 @@
                                    │ auth + billing    │
                                    └───────────────────┘
 ```
+
+## Composition root
+
+`HydraApp` owns long-lived infrastructure: encrypted database, repositories, `LlamaEngine`, `ModelDownloads`, and a `BillingGateway` (mock by default via `BuildConfig.USE_MOCK_BILLING`). Feature ViewModels receive these through factories in `MainActivity`.
 
 ## Core principles
 

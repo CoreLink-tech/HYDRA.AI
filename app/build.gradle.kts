@@ -78,6 +78,10 @@ dependencies {
     // RoomDatabase is a supertype of HydraDatabase, so :app needs it on its compile classpath.
     implementation(libs.androidx.room.runtime)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.coroutines.android)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

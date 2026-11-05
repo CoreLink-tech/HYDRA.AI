@@ -32,7 +32,6 @@ import com.zenlink.hydra.core.designsystem.HydraTheme
 import com.zenlink.hydra.core.device.DeviceChecker
 import com.zenlink.hydra.core.model.ModelCatalog
 import com.zenlink.hydra.core.model.Entitlement
-import com.zenlink.hydra.core.model.Plan
 import com.zenlink.hydra.feature.chat.ChatScreen
 import com.zenlink.hydra.feature.chat.ChatViewModel
 import com.zenlink.hydra.feature.models.ModelsScreen
@@ -82,6 +81,10 @@ private fun HydraRoot(online: Boolean) {
         app.models.observeAll().collect { value = it }
     }
     val hasModel = installed.any { it.state == ModelState.INSTALLED }
+
+    // Live entitlement from BillingGateway (mock in debug). Offline chat never depends on this.
+    val entitlement by app.billing.entitlement.collectAsState(initial = Entitlement.FREE)
+    val nowMs = System.currentTimeMillis()
 
     Scaffold(
         bottomBar = {
@@ -146,16 +149,20 @@ private fun HydraRoot(online: Boolean) {
                             observed = settingsRepo.observe(),
                         )
                     })
-                    // PHASE-1 NOTE: Entitlement is hard-coded to FREE until Play Billing products
-                    // and the real BillingGateway observation are wired. Offline chat remains
-                    // available regardless of plan. See NOTES.md and core/billing.
+                    // Entitlement is observed from app.billing (MockBillingGateway while
+                    // BuildConfig.USE_MOCK_BILLING is true). Share count is 0 until the relay
+                    // is deployed and can list live shares.
                     SettingsScreen(
                         viewModel = vm,
                         subscription = SettingsPlanner.subscriptionStatus(
-                            entitlement = Entitlement(plan = Plan.FREE, expiresAtMs = null),
-                            nowMs = System.currentTimeMillis(),
+                            entitlement = entitlement,
+                            nowMs = nowMs,
                         ),
-                        shareCapacity = "", // placeholder until share relay is deployed
+                        shareCapacity = SettingsPlanner.shareCapacityLine(
+                            activeShares = 0,
+                            entitlement = entitlement,
+                            nowMs = nowMs,
+                        ),
                     )
                 }
             }
