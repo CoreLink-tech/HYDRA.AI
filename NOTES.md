@@ -1,3 +1,5 @@
+Copyright (c) 2026 David Ashe. See LICENSE.
+
 ## Status
 
 **v0.1.0 engineering alpha** — in-repo foundation complete. External ops (R2, Play products, staging relay, real DSN, upload keystore) remain outside this repository.

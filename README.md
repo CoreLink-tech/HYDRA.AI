@@ -157,9 +157,15 @@ Latest engineering alpha: **v0.1.0**.
 
 ## License
 
-Copyright (c) 2026 CoreLink-tech.  
-**Business Source License 1.1** — see [LICENSE](LICENSE) and [LICENSING.md](LICENSING.md).  
-Commercial and data-collaboration licensing: contact the repository owner via GitHub.
+**Business Source License 1.1 (BSL-1.1)** — full text in [LICENSE](LICENSE), summary in [LICENSING.md](LICENSING.md).
+
+- **Copyright (c) 2026 David Ashe.** Original code and documentation ownership is retained by the author.
+- Repository is published under the GitHub account **CoreLink-tech**.
+- BSL-1.1 allows non-production use as stated in the license; a competing commercial product substantially similar to Hydra.AI requires a separate commercial license.
+- Four years after publication of a given version, that version becomes available under Apache License 2.0.
+- Commercial and data-collaboration inquiries: contact the repository owner via GitHub.
+
+GitHub may display the license as “Other” because BSL is not always auto-classified like MIT/Apache; the binding text remains `LICENSE`.
 
 ## Contributing
 

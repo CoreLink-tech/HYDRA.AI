@@ -1,6 +1,7 @@
 # Contributing to Hydra.AI
 
 Thank you for your interest. This project is in early development.
+Copyright (c) 2026 David Ashe. Contributions are subject to the project LICENSE (BSL-1.1).
 
 ## How to contribute
 
