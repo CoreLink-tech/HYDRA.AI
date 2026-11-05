@@ -20,7 +20,7 @@ work = "2.10.0"
 androidxTest = "1.6.1"
 androidxTestExt = "1.2.1"
 espresso = "3.6.1"
-detekt = "1.23.7"
+detekt = "1.23.8"
 kover = "0.9.1"
 
 [libraries]
