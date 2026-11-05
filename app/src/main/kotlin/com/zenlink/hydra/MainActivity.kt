@@ -146,13 +146,16 @@ private fun HydraRoot(online: Boolean) {
                             observed = settingsRepo.observe(),
                         )
                     })
+                    // PHASE-1 NOTE: Entitlement is hard-coded to FREE until Play Billing products
+                    // and the real BillingGateway observation are wired. Offline chat remains
+                    // available regardless of plan. See NOTES.md and core/billing.
                     SettingsScreen(
                         viewModel = vm,
                         subscription = SettingsPlanner.subscriptionStatus(
                             entitlement = Entitlement(plan = Plan.FREE, expiresAtMs = null),
                             nowMs = System.currentTimeMillis(),
                         ),
-                        shareCapacity = "",
+                        shareCapacity = "", // placeholder until share relay is deployed
                     )
                 }
             }

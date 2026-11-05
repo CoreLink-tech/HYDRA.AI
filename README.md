@@ -1,60 +1,145 @@
-Hydra.AI
+# Hydra.AI
 
-Hydra.AI runs a small language model entirely on your Android phone. After the model is downloaded once, chat works offline and nothing you type leaves the device. Optional online sharing sends an end-to-end encrypted copy of a conversation: the key is generated on your phone and only travels in the link fragment, so the relay stores ciphertext it cannot read.
+**Private, on-device AI chat for Android.**
 
-Status: core modules (billing, sharing, monitoring, designsystem) are built and unit tested on JVM. Feature modules and the :app wiring are in progress on this branch. See NOTES.md for everything that is still stubbed.
+Hydra.AI runs a small language model entirely on your phone via llama.cpp. After the model is downloaded once, chat works offline and nothing you type leaves the device. Optional conversation sharing uses end-to-end encryption: the key is generated on-device and travels only in the link fragment, so the relay stores ciphertext it cannot read.
 
-REPO LAYOUT
+> **Status:** Core modules are implemented and unit-tested. Feature modules and the app shell compile. Full device verification, production model hosting, Play Billing products, and the share relay deployment are still in progress. See [NOTES.md](NOTES.md).
 
-app/                     Android app module: navigation and onboarding wiring
-core/llama/              JNI wrapper around llama.cpp (libhydra_llama.so, prebuilt arm64-v8a)
-core/download/           Resumable model downloads with checksum verification
-core/device/             Device check: RAM, storage, CPU, recommended model tier
-core/database/           Room storage for chats, messages, installed models, settings
-core/model/              Pure Kotlin domain types shared across modules
-core/billing/            Play Billing wrapper, mock gateway for dev, Free vs Pro policy
-core/sharing/            Nearby transport interface, E2E-encrypted online share client
-core/monitoring/         Opt-in crash reporting stub, never sends prompt content
-core/designsystem/       Material 3 dark theme, typography, common components
-feature/onboarding/      Device check, recommended models, download, first run
-feature/chat/            Streaming chat UI wired to core:llama
-feature/models/          Model catalogue, download management
-feature/settings/        Preferences, consent, subscription
-scripts/vendor-llama.sh  Fetches and builds llama.cpp into core/llama
-web/                     Next.js relay and marketing site (see Web setup below)
+## Problem & users
 
-ANDROID STUDIO BUILD
+Most mobile AI chat products send every prompt to a remote server. Hydra.AI targets users who want useful local assistance (writing, study, light coding help) without giving a third party permanent access to their conversations. Primary audience: privacy-conscious Android users on mid-to-high-end devices (3 GB+ RAM).
 
-Requirements
+## Key features
+
+- Fully offline chat after one model download
+- Curated, quantized GGUF models (Fast / Balanced / Advanced tiers)
+- Device-aware model recommendation (RAM, storage, thermal, ABI)
+- Resumable downloads with SHA-256 verification
+- End-to-end encrypted conversation sharing (AES-256-GCM)
+- Free vs Pro entitlement (offline chat is never gated by subscription)
+- Encrypted local database (SQLCipher + Android Keystore)
+
+## Architecture overview
+
+Modular multi-module Gradle project approximating Clean Architecture:
+
+- `:core:model` – pure domain types (no Android)
+- Other `:core:*` modules – infrastructure (DB, download, llama, billing, sharing…)
+- `:feature:*` – Compose screens + ViewModels
+- `:app` – composition root, navigation, manual DI via `HydraApp`
+- `web/` – Next.js relay, auth, billing verification, admin, marketing
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) (to be expanded) for diagrams and data-flow details.
+
+## Module map
+
+| Module | Purpose |
+|--------|---------|
+| `app` | Navigation, onboarding gate, bottom bar, `HydraApp` |
+| `core/model` | Entitlement, ModelDescriptor, ChatMessage, catalogues |
+| `core/database` | Room + SQLCipher + KeyProvider + repositories |
+| `core/llama` | JNI + LlamaEngine (streaming generation) |
+| `core/download` | OkHttp Range + WorkManager + Integrity |
+| `core/billing` | BillingGateway, Mock, Play, EntitlementPolicy |
+| `core/sharing` | ShareCrypto, ShareService, HttpShareRelay |
+| `core/device` | DeviceChecker + TierRecommender |
+| `core/monitoring` | Opt-in crash reporting (prompts never sent) |
+| `core/designsystem` | Material 3 dark theme |
+| `feature/*` | Onboarding, Chat, Models, Settings screens |
+| `web` | Next.js 16 + Turso + Drizzle API |
+
+## Technology stack
+
+- Kotlin 2.0, AGP 8.7, Compose BOM 2024.12, Room 2.6, SQLCipher, OkHttp, WorkManager, Play Billing
+- llama.cpp (vendored at tag b10232)
+- Next.js 16, React 19, Drizzle ORM, Turso/libsql
+
+## Prerequisites
+
 - JDK 17
-- Android SDK with platform 35
-- NDK 27.0.12077973 (install via SDK Manager, NDK (Side by side))
-- CMake 3.22.1 (SDK Manager, CMake)
+- Android SDK platform 35
+- NDK 27.0.12077973 (Side-by-side)
+- CMake 3.22.1
+- Node.js ≥ 20.9 (for `web/` only)
 
-Steps
-1. Clone the repo and check out folk/android-app.
-2. Run the llama.cpp vendoring script from the repo root:
-   bash scripts/vendor-llama.sh
-   This clones llama.cpp at the pinned tag (b10232, override with LLAMA_TAG) into core/llama/third_party/llama.cpp. Sources only; no binaries are committed.
-3. Open the project folder in Android Studio and let Gradle sync.
-4. Build a debug APK from the command line:
-   ./gradlew assembleDebug
-5. Install with Run in Android Studio, or adb install app/build/outputs/apk/debug/app-debug.apk.
+## Local development – Android
 
-Pure JVM unit tests run without the SDK and NDK:
-   ./gradlew :core:billing:testDebugUnitTest :core:sharing:testDebugUnitTest :core:monitoring:testDebugUnitTest
+```bash
+git clone https://github.com/CoreLink-tech/HYDRA.AI.git
+cd HYDRA.AI
 
-WEB SETUP
+# Required once: fetch llama.cpp sources (not committed)
+bash scripts/vendor-llama.sh
 
-The web/ directory is a Next.js 16 app (React 19, next-auth, Drizzle with libsql/Turso, Stripe). It hosts the share relay under /api/v1/shares and the billing verification routes under /api/v1/billing. The Android app talks only to that API contract.
-  cd web
-  npm install
-  cp .env.example .env.local   then fill in the variables named in web/.env.example
-  npm run dev
+# Unit tests (no device or NDK required)
+./gradlew :core:model:testDebugUnitTest \
+          :core:billing:testDebugUnitTest \
+          :core:sharing:testDebugUnitTest \
+          :core:download:testDebugUnitTest \
+          :core:device:testDebugUnitTest \
+          :core:monitoring:testDebugUnitTest \
+          :core:database:testDebugUnitTest \
+          :feature:chat:testDebugUnitTest \
+          :feature:onboarding:testDebugUnitTest \
+          :feature:models:testDebugUnitTest \
+          :feature:settings:testDebugUnitTest \
+          :app:testDebugUnitTest
 
-web/.env.example lists: TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, AUTH_SECRET, ADMIN_USER, ADMIN_PASSWORD, R2_PUBLIC_BASE_URL, NEXT_PUBLIC_SITE_URL, PLAY_RTDN_SECRET, GOOGLE_PLAY_PACKAGE_NAME, GOOGLE_PLAY_SERVICE_ACCOUNT_EMAIL, GOOGLE_PLAY_SERVICE_ACCOUNT_PRIVATE_KEY. Set them in your own environment; never commit real values.
-The relay and billing routes live on the folk/cloud branch.
+# Optional full debug APK (requires NDK + CMake)
+./gradlew assembleDebug
+```
 
-LICENSE
+Open the project root in Android Studio and let Gradle sync.
 
-See the repository for license terms.
+## Local development – Web
+
+```bash
+cd web
+cp .env.example .env.local   # fill required vars – never commit real values
+npm install
+npm run db:migrate
+npm run dev
+```
+
+## Environment variables
+
+See [`web/.env.example`](web/.env.example). Never commit `.env.local`, keystores, or service-account JSON.
+
+## Security notes
+
+- Database passphrase is random, Keystore-wrapped (AES-GCM), never leaves the device.
+- Share keys exist only in the URL fragment.
+- Cleartext HTTP is disabled via network security config.
+- `allowBackup="false"`.
+- Monitoring deliberately strips prompt content.
+- Report vulnerabilities via the process in [SECURITY.md](SECURITY.md).
+
+## Build & test commands
+
+| Goal | Command |
+|------|---------|
+| All unit tests | `./gradlew testDebugUnitTest` |
+| Specific modules | see Local development above |
+| Debug APK | `./gradlew assembleDebug` |
+| Clean | `./gradlew clean` |
+| Web typecheck | `cd web && npm run typecheck` |
+
+## License
+
+Copyright (c) 2026 CoreLink-tech / ZenLink Technologies.  
+See [LICENSE](LICENSE) for terms (Business Source License 1.1).  
+Commercial licensing and data-collaboration inquiries are welcome; contact the repository owner.
+
+## Roadmap (high level)
+
+- [ ] Production R2 model hosting + catalogue API
+- [ ] Play Billing products + server verification
+- [ ] Deployed share relay
+- [ ] First public alpha on Play (closed testing)
+- [ ] Nearby share transport
+- [ ] Instrumented UI tests
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
