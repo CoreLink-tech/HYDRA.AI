@@ -7,6 +7,11 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ## [0.1.0] – 2026-11-05
 
+### Build artifacts
+
+Debug APK tags `debug-build-1` … `debug-build-10` publish `hydra-debug.apk` via the Build debug APK workflow (see `.github/workflows/build-apk.yml`). Those tags are CI binary snapshots, not product version bumps.
+
+
 Engineering alpha suitable for technical review and licensing discussion. Not a production Play Store release.
 
 ### Added

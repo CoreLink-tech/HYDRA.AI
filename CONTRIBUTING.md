@@ -29,3 +29,26 @@ Copyright (c) 2026 David Ashe. Contributions are subject to the project LICENSE 
 ## Questions
 
 Open a GitHub issue with the `question` label or contact the repository owner.
+
+
+## Branching strategy
+
+- `main` is the default integration branch.
+- Use short-lived feature branches: `feature/...`, `fix/...`, `docs/...`.
+- Open pull requests into `main`. Prefer small, reviewable diffs.
+
+## Commit messages
+
+- Prefer concise imperative subjects: `fix: ...`, `docs: ...`, `test: ...`, `release: ...`.
+- Reference issues when relevant.
+
+## Testing requirements
+
+- Pure logic changes should include or update JVM unit tests.
+- Run `./gradlew testDebugUnitTest` before opening a PR.
+- UI/instrumented tests require an emulator or device and are optional for docs-only PRs.
+
+## Documentation requirements
+
+- User-facing or setup changes must update `README.md` and, when appropriate, `NOTES.md` or `CHANGELOG.md`.
+- Do not document production secrets or private infrastructure.

@@ -37,3 +37,12 @@ This project is licensed under Business Source License 1.1 (see LICENSE). Securi
 In-scope: Android app modules, native llama.cpp integration, `web/` API and share relay.
 
 Out-of-scope (for now): third-party model weights hosted on Hugging Face, Play Console configuration, production deployment infrastructure that is not present in this repository.
+
+
+## Dependency and security-update policy
+
+- Android dependencies are centralized in `gradle/libs.versions.toml`.
+- Prefer official AndroidX, Google Play, and well-known libraries (OkHttp, SQLCipher).
+- Review dependency upgrades in pull requests; run `./gradlew testDebugUnitTest` after bumps.
+- Do not commit API keys, keystores, or `.env` files. Use GitHub Secrets for CI credentials if needed.
+- Report vulnerable dependencies the same way as other security issues (private report to the repository owner).
