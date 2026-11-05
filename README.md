@@ -125,6 +125,12 @@ See [`web/.env.example`](web/.env.example). Never commit `.env.local`, keystores
 | Clean | `./gradlew clean` |
 | Web typecheck | `cd web && npm run typecheck` |
 
+## Release & changelog
+
+- Versioning and signed-build steps: [RELEASE.md](RELEASE.md)
+- Notable changes: [CHANGELOG.md](CHANGELOG.md)
+- Optional signing template: [keystore.properties.example](keystore.properties.example)
+
 ## License
 
 Copyright (c) 2026 CoreLink-tech / ZenLink Technologies.  
@@ -133,12 +139,13 @@ Commercial licensing and data-collaboration inquiries are welcome; contact the r
 
 ## Roadmap (high level)
 
+- [x] Engineering alpha docs, LICENSE, CI, architecture (Phases 1–3 foundation)
 - [ ] Production R2 model hosting + catalogue API
 - [ ] Play Billing products + server verification
 - [ ] Deployed share relay
 - [ ] First public alpha on Play (closed testing)
 - [ ] Nearby share transport
-- [ ] Instrumented UI tests
+- [ ] Compose UI journey tests
 
 ## Contributing
 

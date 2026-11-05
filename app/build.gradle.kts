@@ -1,7 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+// Optional release signing. Copy keystore.properties.example → keystore.properties (gitignored).
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -14,7 +24,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "0.1.0-alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Online endpoints. Empty string = offline-only build (in-memory relay stub).
@@ -24,12 +34,25 @@ android {
         buildConfigField("String", "PRIVACY_POLICY_URL", "\"https://zenlink.tech/hydra/privacy\"")
     }
 
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // TODO(release): wire the Play upload keystore via keystore.properties (never committed).
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
         debug {
             applicationIdSuffix = ".debug"

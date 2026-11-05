@@ -8,6 +8,7 @@
 - Manual composition root in `HydraApp` (Hilt deferred to a later phase).
 - Model catalogue ships in the app binary for offline first-run; can later be refreshed from the web API.
 - Billing defaults to `MockBillingGateway` while `BuildConfig.USE_MOCK_BILLING` is true so Settings can observe a live entitlement flow without Play Console products.
+- Release signing is optional and driven by a local `keystore.properties` file that is never committed.
 
 ## Phase progress
 
@@ -16,14 +17,18 @@
 - GitHub Actions CI (unit tests + web typecheck)
 - Repository description + topics
 
-### Phase 2 (in progress)
-- **Done:** `HydraApp.billing` exposes a `BillingGateway`; Settings observes `entitlement` and shows live share capacity via `SettingsPlanner`
-- **Done:** Additional unit tests (`ModelCatalogTest`, expanded `MockBillingGatewayTest`)
-- **Done:** Instrumented smoke test scaffold (`SmokeInstrumentedTest`) + androidTest dependencies
-- **Still open:** real `PlayBillingGateway` Activity wiring when `USE_MOCK_BILLING=false`
-- **Still open:** Compose UI journey tests (require device + vendored llama)
-- **Still open:** server-backed model catalogue refresh
-- **Still open:** detekt/ktlint formal gate (optional)
+### Phase 2 (done for in-repo scope)
+- `HydraApp.billing` + Settings observes live entitlement / share capacity
+- Additional unit tests and instrumented smoke scaffold
+- Remaining: real Play Activity provider, Compose journeys, server catalogue
+
+### Phase 3 (in progress – documentation & release readiness)
+- **Done:** Expanded ARCHITECTURE.md
+- **Done:** CHANGELOG.md + RELEASE.md process doc
+- **Done:** `keystore.properties.example` + optional signingConfigs in `app/build.gradle.kts`
+- **Done:** `versionName` set to `0.1.0-alpha`
+- **Done:** GitHub Release `v0.1.0-alpha` (tagged)
+- **External (not in repo):** R2 bucket, Play Console products, staging host deploy, real upload keystore
 
 ## Known limitations / stubs
 
@@ -42,7 +47,7 @@ Nothing below is fully configured for a production release. Each item must be co
 ### Relay
 - Online share relay (`web/src/app/api/v1/shares`) is not deployed.
 - `NEXT_PUBLIC_SITE_URL` and the app's `RELAY_BASE_URL` are empty (offline-only builds).
-- Nearby Connections transport is an interface only; the Google Play Services implementation is not written.
+- Nearby Connections transport is an interface only.
 - Settings share capacity currently reports `0 of N` live shares until the relay can list them.
 
 ### Email / auth
@@ -61,7 +66,10 @@ Nothing below is fully configured for a production release. Each item must be co
 - Wi-Fi-only downloads use WorkManager's `UNMETERED` constraint.
 
 ### Downloads
-- `core:download` has a real OkHttp resumable fetcher, SHA-256 verification, and a WorkManager worker. It still needs a production base URL and real checksums in the catalogue before models can be downloaded end-to-end against R2.
+- `core:download` has a real OkHttp resumable fetcher, SHA-256 verification, and a WorkManager worker. It still needs a production base URL and real checksums before models can be downloaded end-to-end against R2.
+
+### Signing
+- Release signing activates only when `keystore.properties` exists locally. See `keystore.properties.example` and `RELEASE.md`.
 
 ## Technical debt
 
@@ -74,5 +82,5 @@ Nothing below is fully configured for a production release. Each item must be co
 
 ## Future work
 
-- Phase 3: full documentation polish, release process, staging deployment
 - Phase 4: Hilt, Nearby implementation, production crash reporting, detekt gate
+- External ops: R2, Play Console, staging/production web deploy
