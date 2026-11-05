@@ -1,6 +1,5 @@
 build:
-  # Alpha codebase: keep the gate informative without blocking merges on legacy style.
-  # Raise the ceiling; tighten again once a baseline is generated for new code only.
+  # Alpha: informative analysis without blocking merges on legacy style.
   maxIssues: 500
   excludeCorrectable: false
   weights:
@@ -8,7 +7,6 @@ build:
     LongParameterList: 1
     style: 0
     comments: 0
-    formatting: 0
 
 config:
   validation: true
@@ -83,7 +81,4 @@ potential-bugs:
     active: true
 
 performance:
-  active: false
-
-formatting:
   active: false
