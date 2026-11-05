@@ -33,11 +33,20 @@ First public engineering alpha of Hydra.AI. Core modules and feature shells are 
 
 ## [Unreleased]
 
+### Added (Phase 4)
+- `AppContainer` composition-root interface (Hilt-ready boundary)
+- `NoOpNearbyShareTransport` + `PlayNearbyShareTransport` skeleton
+- Consent-gated crash reporter wired in `HydraApp` (noop backend until DSN configured)
+- `ModelCatalogSource` / `LocalModelCatalogSource` for future network catalogue refresh
+- Detekt static analysis (`config/detekt/detekt.yml`) + CI job
+- Compose UI tests for offline banner copy (`AppRouterComposeTest`)
+
 ### Planned
 - Production R2 model hosting and catalogue API
 - Play Console products and server-side verification
 - Deployed share relay
-- Compose UI journey tests
+- Full Play Nearby ConnectionsClient implementation on device
 - Signed release builds via `keystore.properties`
+- Optional full Hilt migration of ViewModel factories
 
 [0.1.0-alpha]: https://github.com/CoreLink-tech/HYDRA.AI/releases/tag/v0.1.0-alpha

@@ -22,13 +22,18 @@
 - Additional unit tests and instrumented smoke scaffold
 - Remaining: real Play Activity provider, Compose journeys, server catalogue
 
-### Phase 3 (in progress – documentation & release readiness)
-- **Done:** Expanded ARCHITECTURE.md
-- **Done:** CHANGELOG.md + RELEASE.md process doc
-- **Done:** `keystore.properties.example` + optional signingConfigs in `app/build.gradle.kts`
-- **Done:** `versionName` set to `0.1.0-alpha`
-- **Done:** GitHub Release `v0.1.0-alpha` (tagged)
-- **External (not in repo):** R2 bucket, Play Console products, staging host deploy, real upload keystore
+### Phase 3 (done for in-repo scope)
+- Expanded ARCHITECTURE.md, CHANGELOG.md, RELEASE.md, keystore template, alpha version, GitHub Release
+- External remaining: R2, Play Console, staging deploy, real upload keystore
+
+### Phase 4 (advanced – in-repo foundation done)
+- **Done:** `AppContainer` interface; `HydraApp` implements it (path toward Hilt)
+- **Done:** Nearby NoOp + Play skeleton + unit test
+- **Done:** Consent-gated crash reporter in composition root
+- **Done:** `ModelCatalogSource` abstraction
+- **Done:** Detekt config + CI job
+- **Done:** Compose UI tests for offline banner (`AppRouterComposeTest`)
+- **Still open:** full Play Nearby ConnectionsClient, Sentry/Crashlytics DSN, full Hilt factory migration
 
 ## Known limitations / stubs
 
@@ -47,7 +52,7 @@ Nothing below is fully configured for a production release. Each item must be co
 ### Relay
 - Online share relay (`web/src/app/api/v1/shares`) is not deployed.
 - `NEXT_PUBLIC_SITE_URL` and the app's `RELAY_BASE_URL` are empty (offline-only builds).
-- Nearby Connections transport is an interface only.
+- Nearby: `NoOpNearbyShareTransport` is default; `PlayNearbyShareTransport` is a fail-closed skeleton until on-device verification.
 - Settings share capacity currently reports `0 of N` live shares until the relay can list them.
 
 ### Email / auth
@@ -73,14 +78,15 @@ Nothing below is fully configured for a production release. Each item must be co
 
 ## Technical debt
 
-- Nearby transport is interface-only
 - Model catalogue still points at Hugging Face URLs for development
-- Compose UI / instrumented journey tests not yet written (smoke test only)
+- Full Compose UI journeys beyond offline-banner tests
 - RTDN still uses a shared-secret query parameter (TODO for OIDC)
-- Manual DI / ViewModel factories in the app module
+- ViewModel factories still manual (AppContainer ready for Hilt)
 - `USE_MOCK_BILLING=false` path still falls back to mock until Activity provider is wired
 
 ## Future work
 
-- Phase 4: Hilt, Nearby implementation, production crash reporting, detekt gate
+- Optional full Hilt migration of ViewModel factories
+- Complete Play Nearby on-device implementation
+- Production crash backend (Sentry or Crashlytics) behind existing consent + Scrubber
 - External ops: R2, Play Console, staging/production web deploy

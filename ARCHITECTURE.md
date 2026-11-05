@@ -27,6 +27,9 @@
 
 ## Composition root
 
+`HydraApp` implements `AppContainer`, an explicit interface over long-lived dependencies. Feature ViewModels already take constructor parameters; a future Hilt migration maps each `AppContainer` property to a `@Singleton` binding without redesigning feature modules.
+
+
 `HydraApp` owns long-lived infrastructure:
 
 | Dependency | Type | Notes |
@@ -129,7 +132,8 @@ Independent Next.js 16 app: marketing, admin, auth sessions (hashed bearer token
 
 ## Future evolution
 
-- Hilt (or similar) for the composition root
-- Server-backed model catalogue with offline snapshot
-- Nearby Connections implementation behind the existing transport interface
+- Optional full Hilt migration of ViewModel factories (boundary already exists via `AppContainer`)
+- Network-backed `ModelCatalogSource` using `GET /api/v1/models`
+- Complete Play Nearby ConnectionsClient on device (`PlayNearbyShareTransport` is the hook)
 - Real `PlayBillingGateway` Activity provider when mock billing is disabled
+- Production `CrashReporter` backend (Sentry/Crashlytics) behind existing consent + Scrubber

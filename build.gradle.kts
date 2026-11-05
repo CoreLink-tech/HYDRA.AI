@@ -6,6 +6,25 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    parallel = true
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    source.setFrom(
+        files(
+            "app/src/main/kotlin",
+            "core",
+            "feature",
+        ),
+    )
+}
+
+dependencies {
+    detektPlugins(libs.detekt.formatting)
 }
 
 // One JVM target for Kotlin across every module (matches Java 17 compileOptions).

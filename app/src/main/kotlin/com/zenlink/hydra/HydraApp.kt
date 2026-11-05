@@ -10,37 +10,42 @@ import com.zenlink.hydra.core.database.repo.SettingsRepository
 import com.zenlink.hydra.core.download.ModelDownloads
 import com.zenlink.hydra.core.download.WorkModelDownloads
 import com.zenlink.hydra.core.llama.LlamaEngine
+import com.zenlink.hydra.core.monitoring.Consent
+import com.zenlink.hydra.core.monitoring.ConsentGatedReporter
+import com.zenlink.hydra.core.monitoring.CrashReporter
+import com.zenlink.hydra.core.monitoring.NoopCrashReporter
+import com.zenlink.hydra.core.sharing.NearbyShareTransport
+import com.zenlink.hydra.core.sharing.NoOpNearbyShareTransport
 
 /**
- * Process-wide owner of the database, repositories, engine and billing. Screens receive these
- * through [MainActivity]; nothing else constructs them. The database is opened lazily on first use.
+ * Process-wide owner of infrastructure. Implements [AppContainer] so feature code depends on
+ * an interface, which keeps a future Hilt migration straightforward.
  *
- * Billing: when [BuildConfig.USE_MOCK_BILLING] is true (the default), a [MockBillingGateway] is used
- * so entitlement can be observed and tested without Play Console products. Switch to
- * [com.zenlink.hydra.core.billing.PlayBillingGateway] once products exist and an Activity provider
- * can be supplied for the purchase sheet.
+ * Billing: [MockBillingGateway] while [BuildConfig.USE_MOCK_BILLING] is true.
+ * Monitoring: consent-gated noop backend until a Sentry/Crashlytics DSN is configured.
+ * Nearby: [NoOpNearbyShareTransport] until Play Nearby is verified on device.
  */
-class HydraApp : Application() {
-    val database: HydraDatabase by lazy { HydraDatabase.open(this) }
-    val chats: ChatRepository by lazy { ChatRepository(database.chatDao(), database.messageDao()) }
-    val models: ModelRepository by lazy { ModelRepository(database.modelDao()) }
-    val settings: SettingsRepository by lazy { SettingsRepository(database.settingDao()) }
-    val engine: LlamaEngine by lazy { LlamaEngine() }
-    val downloads: ModelDownloads by lazy { WorkModelDownloads(this) }
+class HydraApp : Application(), AppContainer {
+    override val database: HydraDatabase by lazy { HydraDatabase.open(this) }
+    override val chats: ChatRepository by lazy { ChatRepository(database.chatDao(), database.messageDao()) }
+    override val models: ModelRepository by lazy { ModelRepository(database.modelDao()) }
+    override val settings: SettingsRepository by lazy { SettingsRepository(database.settingDao()) }
+    override val engine: LlamaEngine by lazy { LlamaEngine() }
+    override val downloads: ModelDownloads by lazy { WorkModelDownloads(this) }
 
-    /**
-     * Live entitlement source. Default is the mock gateway so Settings and share limits react to
-     * plan changes in debug builds. Offline chat never depends on this value.
-     */
-    val billing: BillingGateway by lazy {
-        // BuildConfig.USE_MOCK_BILLING is true until Play products are configured (see NOTES.md).
-        if (BuildConfig.USE_MOCK_BILLING) {
-            MockBillingGateway()
-        } else {
-            // Play path still needs an Activity provider for purchase(); entitlement cache starts FREE
-            // and is updated via applyServerEntitlement after server verification.
-            // For now keep mock so the app never crashes when the flag is flipped early.
-            MockBillingGateway()
-        }
+    override val billing: BillingGateway by lazy {
+        // Play path still needs an Activity provider for purchase(); keep mock until products exist.
+        MockBillingGateway()
     }
+
+    private val monitoringConsent = Consent(initial = false)
+
+    override val crashReporter: CrashReporter by lazy {
+        ConsentGatedReporter(
+            consent = monitoringConsent,
+            delegate = NoopCrashReporter(),
+        )
+    }
+
+    override val nearby: NearbyShareTransport by lazy { NoOpNearbyShareTransport() }
 }

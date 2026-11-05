@@ -1,0 +1,46 @@
+build:
+  maxIssues: 50
+  excludeCorrectable: false
+
+config:
+  validation: true
+
+comments:
+  active: false
+
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    constructorThreshold: 12
+    functionThreshold: 10
+  TooManyFunctions:
+    thresholdInFiles: 20
+    thresholdInClasses: 20
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: false
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable', 'Test']
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][A-Za-z0-9_]*'
+
+style:
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: true
+  MaxLineLength:
+    maxLineLength: 140
+  ReturnCount:
+    max: 5
+  ThrowsCount:
+    max: 5
+
+potential-bugs:
+  active: true
