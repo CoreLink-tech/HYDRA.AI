@@ -14,11 +14,13 @@ detekt {
     allRules = false
     parallel = true
     // Engineering alpha: analysis always runs; does not fail the build on residual style debt.
-    // After `./gradlew detektBaseline`, set ignoreFailures=false and point baseline at
-    // config/detekt/baseline.xml so only new issues fail CI.
     ignoreFailures = true
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
-    baseline.setFrom(files("$rootDir/config/detekt/baseline.xml"))
+    // Optional baseline: only applied when the file exists (generate with ./gradlew detektBaseline).
+    val baselineFile = file("$rootDir/config/detekt/baseline.xml")
+    if (baselineFile.exists()) {
+        baseline.setFrom(files(baselineFile))
+    }
     source.setFrom(
         files(
             "app/src/main/kotlin",

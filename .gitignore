@@ -35,7 +35,7 @@ core/llama/third_party/llama.cpp/
 *.part
 
 # Detekt / reports
-config/detekt/baseline.xml
+# config/detekt/baseline.xml  # commit when generated
 **/detekt-report*
 **/reports/
 
