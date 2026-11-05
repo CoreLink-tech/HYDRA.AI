@@ -1,0 +1,41 @@
+# Local development stack for Hydra.AI web (no cloud accounts required).
+# Usage from repo root:
+#   docker compose up -d
+#   cd web && cp .env.example .env.local  # then set AUTH_SECRET and TURSO_DATABASE_URL=file:local.db
+#   npm ci && npm run db:migrate && npm run dev
+#
+# Android builds do not need this stack (unit tests are pure Gradle).
+
+services:
+  # Optional: only if you prefer a server DB over file:local.db
+  # Most local workflows use TURSO_DATABASE_URL=file:local.db (no container required).
+  web:
+    image: node:20-bookworm
+    working_dir: /app
+    volumes:
+      - ./web:/app
+      - web_node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      TURSO_DATABASE_URL: file:/app/data/local.db
+      AUTH_SECRET: local-dev-auth-secret-at-least-32-chars-long
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      USE_MOCK_PLAY: "true"
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: admin
+      R2_PUBLIC_BASE_URL: https://models.example.com
+    command: >
+      bash -c "mkdir -p /app/data &&
+               npm ci &&
+               npm run db:migrate &&
+               npm run dev -- --hostname 0.0.0.0 --port 3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+volumes:
+  web_node_modules:

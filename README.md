@@ -12,6 +12,35 @@ Hydra.AI runs a small language model entirely on your phone via llama.cpp. After
 > Core modules, feature shells, unit tests, CI, and documentation are in place.  
 > Production model hosting, Play Billing products, the share relay deployment, and full on-device UI verification are **not** complete. See [Known limitations](#known-limitations).
 
+
+## Quick verification (fresh clone)
+
+```bash
+git clone https://github.com/CoreLink-tech/HYDRA.AI.git
+cd HYDRA.AI
+
+# Android pure unit tests — no NDK, no device (CI runs the same task list)
+./gradlew :core:model:testDebugUnitTest :core:billing:testDebugUnitTest \
+  :core:sharing:testDebugUnitTest :core:download:testDebugUnitTest \
+  :core:monitoring:testDebugUnitTest :feature:chat:testDebugUnitTest
+
+# Optional coverage gate for core modules that have tests
+./gradlew :core:model:koverVerify :core:billing:koverVerify :core:sharing:koverVerify
+
+# Web (no Turso/Play cloud accounts required)
+cd web
+cp .env.example .env.local   # AUTH_SECRET + TURSO_DATABASE_URL=file:local.db + USE_MOCK_PLAY=true
+npm ci
+npm test
+npm run typecheck
+cd ..
+
+# Optional full web stack in Docker
+docker compose up -d
+```
+
+For a full Android debug APK (needs SDK/NDK): `bash scripts/vendor-llama.sh && ./gradlew assembleDebug`.
+
 ## Key features
 
 - Fully offline chat after one model download

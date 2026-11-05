@@ -76,8 +76,33 @@ async function getAccessToken(): Promise<string> {
   return json.access_token;
 }
 
+function useMockPlay(): boolean {
+  return (process.env.USE_MOCK_PLAY ?? "").toLowerCase() === "true";
+}
+
+/** Deterministic mock for local/CI — no network, no service account. */
+export function mockFetchSubscription(purchaseToken: string): PlaySubscriptionV2 {
+  const active = !purchaseToken.includes("expired");
+  return {
+    subscriptionState: active ? "SUBSCRIPTION_STATE_ACTIVE" : "SUBSCRIPTION_STATE_EXPIRED",
+    acknowledgementState: "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED",
+    latestOrderId: `mock-order-${purchaseToken.slice(0, 8) || "unknown"}`,
+    startTime: new Date(0).toISOString(),
+    lineItems: [
+      {
+        productId: "hydra_pro_monthly",
+        expiryTime: active
+          ? new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString()
+          : new Date(0).toISOString(),
+        autoRenewingPlan: { autoRenewEnabled: active },
+      },
+    ],
+  };
+}
+
 /** Fetches the authoritative subscription record for a purchase token. Never trust the client. */
 export async function fetchSubscription(purchaseToken: string): Promise<PlaySubscriptionV2> {
+  if (useMockPlay()) return mockFetchSubscription(purchaseToken);
   const token = await getAccessToken();
   const pkg = env.playPackageName();
   const res = await fetch(
