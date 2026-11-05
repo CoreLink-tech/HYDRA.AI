@@ -13,10 +13,12 @@ detekt {
     buildUponDefaultConfig = true
     allRules = false
     parallel = true
-    // Do not fail the build on residual style findings during alpha; CI still runs the task
-    // and potential-bugs remain active in config/detekt/detekt.yml.
+    // Engineering alpha: analysis always runs; does not fail the build on residual style debt.
+    // After `./gradlew detektBaseline`, set ignoreFailures=false and point baseline at
+    // config/detekt/baseline.xml so only new issues fail CI.
     ignoreFailures = true
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    baseline.setFrom(files("$rootDir/config/detekt/baseline.xml"))
     source.setFrom(
         files(
             "app/src/main/kotlin",

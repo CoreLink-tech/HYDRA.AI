@@ -15,7 +15,7 @@ jobs:
       - name: Check release-readiness files
         run: |
           set -e
-          for f in README.md LICENSE SECURITY.md CONTRIBUTING.md ARCHITECTURE.md CHANGELOG.md RELEASE.md NOTES.md keystore.properties.example; do
+          for f in README.md LICENSE LICENSING.md SECURITY.md CONTRIBUTING.md ARCHITECTURE.md CHANGELOG.md RELEASE.md NOTES.md keystore.properties.example; do
             test -f "$f" || { echo "missing $f"; exit 1; }
           done
           echo "All required docs present."

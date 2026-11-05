@@ -28,6 +28,10 @@ We will acknowledge receipt and work with you on a coordinated disclosure timeli
 - Crash / monitoring path is designed never to transmit user prompts or message content.
 - No production secrets, API keys, or private keys are committed to this repository.
 
+## License and disclosure
+
+This project is licensed under Business Source License 1.1 (see LICENSE). Security reports are welcome regardless of license questions.
+
 ## Scope
 
 In-scope: Android app modules, native llama.cpp integration, `web/` API and share relay.

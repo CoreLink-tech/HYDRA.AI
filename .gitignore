@@ -9,15 +9,44 @@ local.properties
 captures/
 .cxx/
 .externalNativeBuild/
+.kotlin/
 
-# Secrets and signing
+# Secrets and signing — never commit
 *.jks
 *.keystore
 keystore.properties
 google-services.json
 secrets.properties
+*.pem
+*.p12
+service-account*.json
+
+# Environment / local config
+.env
+.env.*
+!.env.example
+web/.env.local
+web/.env.production
+web/.env.development
 
 # Vendored llama.cpp sources are fetched by scripts/vendor-llama.sh, never committed
 core/llama/third_party/llama.cpp/
 *.gguf
 *.part
+
+# Detekt / reports
+config/detekt/baseline.xml
+**/detekt-report*
+**/reports/
+
+# Node
+web/node_modules/
+web/.next/
+web/out/
+web/coverage/
+
+# OS / editor
+*.swp
+*~
+.vscode/
+.cursor/
