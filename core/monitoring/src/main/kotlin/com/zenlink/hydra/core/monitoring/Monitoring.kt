@@ -1,5 +1,7 @@
 package com.zenlink.hydra.core.monitoring
 
+import timber.log.Timber
+
 /**
  * Crash and error reporting, off by default. The user opts in from settings.
  *
@@ -28,7 +30,10 @@ class Consent(initial: Boolean = false) {
  * Records nothing, so the default build never sends a report.
  */
 class NoopCrashReporter : CrashReporter {
-    override fun recordError(throwable: Throwable, context: Map<String, String>) = Unit
+    override fun recordError(throwable: Throwable, context: Map<String, String>) {
+        // Local-only log; never sends off device. Production backends replace this class.
+        Timber.w(throwable, "crash_report_noop context=%s", context.keys.joinToString())
+    }
     override fun setEnabled(enabled: Boolean) = Unit
 }
 

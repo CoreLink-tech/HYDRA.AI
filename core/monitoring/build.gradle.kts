@@ -24,6 +24,7 @@ android {
 
 dependencies {
     implementation(project(":core:model"))
+    implementation(libs.timber)
     implementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.junit)
 }
