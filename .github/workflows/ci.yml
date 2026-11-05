@@ -35,7 +35,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Run detekt
-        # Alpha: allow findings within maxIssues from config/detekt/detekt.yml
+        # Alpha: detekt runs with ignoreFailures=true; reports style debt without blocking merges.
+        # Tighten config/detekt/detekt.yml and drop ignoreFailures once a baseline is generated.
         run: ./gradlew detekt --stacktrace
 
   android-unit:

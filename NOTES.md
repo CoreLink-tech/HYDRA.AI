@@ -31,7 +31,7 @@
 - **Done:** Nearby NoOp + Play skeleton + unit test
 - **Done:** Consent-gated crash reporter in composition root
 - **Done:** `ModelCatalogSource` abstraction
-- **Done:** Detekt config + CI job
+- **Done:** Detekt config + CI job (`ignoreFailures=true` for alpha; tighten later with a baseline)
 - **Done:** Compose UI tests for offline banner (`AppRouterComposeTest`)
 - **Still open:** full Play Nearby ConnectionsClient, Sentry/Crashlytics DSN, full Hilt factory migration
 
