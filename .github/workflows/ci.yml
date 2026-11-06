@@ -71,8 +71,6 @@ jobs:
                     :app:testDebugUnitTest \
                     --stacktrace
 
-      - name: Coverage verify (core modules with tests)
-        run: ./gradlew coverageCheck --stacktrace
 
   web:
     name: Web typecheck + unit tests

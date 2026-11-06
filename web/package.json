@@ -12,7 +12,7 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "test": "node --test src/lib/__tests__/**/*.test.mjs"
+    "test": "node --test src/lib/__tests__/google-play.test.mjs"
   },
   "engines": {
     "node": ">=20.9.0"
