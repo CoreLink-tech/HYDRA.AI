@@ -14,6 +14,9 @@ detekt {
     buildUponDefaultConfig = true
     allRules = false
     parallel = true
+    // Keep ignoreFailures until config/detekt/baseline.xml is generated on an Android SDK agent:
+    //   ./gradlew detektBaseline && git add config/detekt/baseline.xml
+    // then set ignoreFailures = false.
     ignoreFailures = true
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     source.setFrom(
@@ -25,7 +28,6 @@ detekt {
     )
 }
 
-// Modules with meaningful JVM unit tests — coverage gate applies only here.
 val koverVerifiedModules = setOf(
     "model",
     "billing",
@@ -36,6 +38,11 @@ val koverVerifiedModules = setOf(
 )
 
 subprojects {
+    // Reproducible dependency resolution when lockfiles are present (generate with --write-locks).
+    configurations.configureEach {
+        resolutionStrategy.activateDependencyLocking()
+    }
+
     plugins.withId("com.android.library") {
         apply(plugin = "org.jetbrains.kotlinx.kover")
         if (name in koverVerifiedModules) {
@@ -43,9 +50,10 @@ subprojects {
                 reports {
                     total {
                         verify {
-                            rule("alpha-line-floor") {
+                            rule("line-floor") {
                                 minBound {
-                                    line.set(30)
+                                    // Target 60% as more ViewModel pure tests land; floor for CI stability.
+                                    line.set(40)
                                 }
                             }
                         }
@@ -59,4 +67,17 @@ subprojects {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
+}
+
+// Convenience alias documented in README / CI.
+tasks.register("coverageCheck") {
+    dependsOn(
+        ":core:model:koverVerify",
+        ":core:billing:koverVerify",
+        ":core:sharing:koverVerify",
+        ":core:download:koverVerify",
+        ":core:monitoring:koverVerify",
+    )
+    group = "verification"
+    description = "Run Kover coverage verification on core modules with unit tests."
 }

@@ -72,13 +72,7 @@ jobs:
                     --stacktrace
 
       - name: Coverage verify (core modules with tests)
-        run: |
-          ./gradlew :core:model:koverVerify \
-                    :core:billing:koverVerify \
-                    :core:sharing:koverVerify \
-                    :core:download:koverVerify \
-                    :core:monitoring:koverVerify \
-                    --stacktrace
+        run: ./gradlew coverageCheck --stacktrace
 
   web:
     name: Web typecheck + unit tests

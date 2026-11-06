@@ -129,6 +129,15 @@ npm run dev
 See [`web/.env.example`](web/.env.example). Never commit `.env.local`, keystores, or service-account JSON.  
 Signing template: [`keystore.properties.example`](keystore.properties.example).
 
+## Dependency locks (Gradle)
+
+Dependency locking is enabled. On a machine with the Android SDK:
+
+```bash
+./gradlew dependencies --write-locks
+git add **/gradle.lockfile
+```
+
 ## Test & quality commands
 
 | Goal | Command |
