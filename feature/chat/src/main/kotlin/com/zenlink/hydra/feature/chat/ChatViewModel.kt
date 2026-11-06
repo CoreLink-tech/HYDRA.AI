@@ -61,7 +61,7 @@ class ChatViewModel(
 
     fun send(text: String) {
         val prompt = text.trim()
-        if (prompt.isEmpty() || _state.value.generating) return
+        if (!ChatTurnPolicy.canSend(prompt, _state.value.generating)) return
         turn = viewModelScope.launch { runTurn(prompt) }
     }
 
